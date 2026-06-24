@@ -39,7 +39,7 @@
     <link rel="preload" href="logo.png" as="image">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=99">
+    <link rel="stylesheet" href="style.css?v=100">
 </head>
 <body>
 
@@ -222,7 +222,7 @@
                 </div>
 
                 <div class="settings-section-block">
-                    <h4 class="section-block-title section-title-with-icon"><span class="section-emoji">↕️</span><span data-i18n="set_sort">Сортировка</span></h4>
+                    <h4 class="section-block-title section-title-with-icon"><img src="icons/settings/Sorting.png?v=100" class="cat-section-icon cat-section-png" alt=""><span data-i18n="set_sort">Сортировка</span></h4>
                     <div class="chips-inline-row">
                         <label class="chip-label-item"><input type="radio" name="sortMode" value="time" checked><span data-i18n="sort_new">Новые</span></label>
                         <label class="chip-label-item"><input type="radio" name="sortMode" value="full"><span data-i18n="sort_all">Все</span></label>
@@ -230,7 +230,7 @@
                 </div>
 
                 <div class="settings-section-block">
-                    <h4 class="section-block-title section-title-with-icon"><span class="section-emoji">📊</span><span data-i18n="set_perpage">Отображать на странице</span></h4>
+                    <h4 class="section-block-title section-title-with-icon"><img src="icons/settings/Display%20on%20page.png?v=100" class="cat-section-icon cat-section-png" alt=""><span data-i18n="set_perpage">Отображать на странице</span></h4>
                     <div class="chips-inline-row">
                         <label class="chip-label-item"><input type="radio" name="itemsPerPage" value="20" checked><span>20</span></label>
                         <label class="chip-label-item"><input type="radio" name="itemsPerPage" value="50"><span>50</span></label>
@@ -373,11 +373,11 @@
 
     <!-- Скрипты: порядок важен! Сначала config.js (ссылки), потом i18n, потом основная логика -->
     <!-- Данные приложений берутся из Repo.json через fetch — обновляй его, чтобы менять каталог -->
-    <!-- ?v=99 принудительно сбрасывает кэш браузера после обновлений -->
+    <!-- ?v=100 принудительно сбрасывает кэш браузера после обновлений -->
     <!-- CACHE_VERSION используется в script.js для сброса кэша Repo.json -->
-    <script>window.CACHE_VERSION = 99;</script>
-    <script src="config.js?v=99"></script>
-    <script src="translations.js?v=99"></script>
-    <script src="script.js?v=99"></script>
+    <script>window.CACHE_VERSION = 100;</script>
+    <script src="config.js?v=100"></script>
+    <script src="translations.js?v=100"></script>
+    <script src="script.js?v=100"></script>
 </body>
 </html>
