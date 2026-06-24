@@ -1,0 +1,715 @@
+/* ==========================================================================
+   iAPPS — СТИЛИ САЙТА
+   Палитра: благородный графит и мягкий матовый тон (iOS минимализм)
+   ========================================================================== */
+
+:root {
+    --ink-dark: #1f242e;
+    --paper-cream: #f2f1ed;
+    --ink-muted: #626975;
+    --card-hover-bg: rgba(31, 36, 46, 0.04);
+    --logo-fill: rgba(31, 36, 46, 0.02);
+    --border-style: 1px solid var(--ink-dark);
+    --dashed-style: 1px dashed var(--ink-dark);
+    --header-bg: rgba(242, 241, 237, 0.8);
+    --accent-glass: rgba(31, 36, 46, 0.03);
+    --glow-color: rgba(31, 36, 46, 0.06);
+    --action-bg: rgba(242, 241, 237, 0.7);
+    --active-glow: 0 0 15px rgba(31, 36, 46, 0.1);
+    --skeleton-bg: rgba(31, 36, 46, 0.06);
+    --modal-backdrop: rgba(0, 0, 0, 0.3);
+}
+
+/* Инвертированная темная тема */
+[data-theme="dark"] {
+    --ink-dark: #f2f1ed;
+    --paper-cream: #12141c;
+    --ink-muted: #8e96a3;
+    --card-hover-bg: rgba(242, 241, 237, 0.06);
+    --logo-fill: rgba(242, 241, 237, 0.04);
+    --header-bg: rgba(18, 20, 28, 0.8);
+    --accent-glass: rgba(242, 241, 237, 0.03);
+    --glow-color: rgba(242, 241, 237, 0.05);
+    --action-bg: rgba(25, 28, 38, 0.7);
+    --active-glow: 0 0 15px rgba(242, 241, 237, 0.15);
+    --skeleton-bg: rgba(242, 241, 237, 0.08);
+    --modal-backdrop: rgba(0, 0, 0, 0.6);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* При смене темы отключаем плавные переходы — цвета меняются мгновенно,
+   иначе блоки «проявляются» с задержкой (особенно заметно на мобильных). */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+    transition: none !important;
+}
+
+/* html-фон нужен для overscroll на мобиле: при оттягивании страницы вниз
+   (pull-to-refresh) виден именно html, а не body. Без этого на белой теме
+   по углам появляются тёмные пятна системного цвета браузера. */
+html {
+    background-color: var(--paper-cream);
+}
+
+/* body прозрачный — иначе он перекрывает canvas-сетку (z-index:-1) своим
+   непрозрачным фоном и сетку не видно. Цвет фона держит html, body только
+   компоновку и текст. */
+body {
+    background-color: transparent;
+    color: var(--ink-dark);
+    padding: calc(110px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+    position: relative;
+    min-height: 100vh;
+}
+
+/* ХОЛСТ ДЛЯ КИНЕТИЧЕСКОЙ СЕТКИ */
+#kineticGridCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    background: transparent;
+    /* Маска плавно гасит сетку к краям, чтобы она не висела по углам.
+       body под canvas и так того же цвета, поэтому при смене темы
+       не появляется рассинхрон (тёмные круги в углах).
+       Расширил с 45%→85% до 30%→95% — иначе сетку почти не видно. */
+    -webkit-mask-image: radial-gradient(circle, #fff 30%, transparent 95%);
+    mask-image: radial-gradient(circle, #fff 30%, transparent 95%);
+}
+
+.main-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.reveal-box {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-box.revealed { opacity: 1; transform: translateY(0); }
+
+.elastic-click { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+.elastic-click:active { transform: scale(0.96) !important; }
+
+.project-logo-svg { display: inline-block; vertical-align: middle; }
+.project-logo-svg .shield-path { stroke: var(--ink-dark); stroke-width: 2.2px; fill: var(--logo-fill); stroke-linejoin: round; }
+.project-logo-svg .apple-main { fill: var(--ink-dark); }
+
+/* PNG-логотип (заменил SVG щит+яблоко на единый PNG-логотип) */
+.project-logo-img { display: inline-block; vertical-align: middle; object-fit: contain; }
+.phone-logo-img { border-radius: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+
+/* ШАПКА */
+.smart-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--header-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 1000;
+    padding: calc(16px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) 18px calc(20px + env(safe-area-inset-left));
+    border-bottom: 1px solid rgba(31, 36, 46, 0.08);
+    transform: translateY(0);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
+}
+[data-theme="dark"] .smart-header { border-bottom: 1px solid rgba(242, 241, 237, 0.08); }
+.smart-header.header-hidden { transform: translateY(-100%); }
+
+#scrollProgressBar {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background-color: var(--ink-dark);
+    z-index: 1001;
+    transition: width 0.1s linear;
+}
+
+.header-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.brand-logo { font-size: 22px; font-weight: 700; color: var(--ink-dark); text-decoration: none; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
+.header-controls { display: flex; align-items: center; gap: 6px; }
+
+.theme-toggle-btn, .top-faq-link {
+    border: var(--border-style); color: var(--ink-dark); background: transparent;
+    border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    text-decoration: none; font-weight: 600; transition: background-color 0.2s, transform 0.1s;
+}
+.theme-toggle-btn { width: 38px; height: 38px; font-size: 15px; }
+.top-faq-link { height: 38px; padding: 0 14px; font-size: 13px; gap: 6px; }
+.top-faq-link:hover, .theme-toggle-btn:hover { background-color: var(--card-hover-bg); }
+
+/* ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА */
+.lang-switcher { position: relative; }
+.lang-toggle-btn { width: 38px; height: 38px; border-radius: 10px; font-size: 15px; display: flex; align-items: center; justify-content: center; border: var(--border-style); color: var(--ink-dark); background: transparent; cursor: pointer; font-weight: 600; transition: background-color 0.2s, transform 0.1s; }
+.lang-toggle-btn:hover { background-color: var(--card-hover-bg); }
+.lang-toggle-btn .lang-code-badge { position: absolute; bottom: -3px; right: -4px; font-size: 8px; font-weight: 800; background: var(--ink-dark); color: var(--paper-cream); border-radius: 6px; padding: 1px 4px; line-height: 1; letter-spacing: 0; }
+.lang-dropdown {
+    position: absolute; top: calc(100% + 8px); right: 0; min-width: 130px;
+    background: var(--paper-cream); border: var(--border-style); border-radius: 12px;
+    padding: 6px; z-index: 1100; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    display: flex; flex-direction: column; gap: 2px;
+    opacity: 0; visibility: hidden; transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.lang-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.lang-option {
+    background: transparent; border: none; color: var(--ink-dark); cursor: pointer;
+    padding: 9px 12px; font-size: 13px; font-weight: 600; text-align: left; border-radius: 8px;
+    font-family: inherit; transition: background-color 0.15s;
+}
+.lang-option:hover { background-color: var(--card-hover-bg); }
+.lang-option.active { background: var(--ink-dark); color: var(--paper-cream); }
+@media (max-width: 480px) { .lang-dropdown { right: -6px; min-width: 120px; } }
+
+/* КНОПКА "НАВЕРХ" */
+#scrollTopBtn {
+    position: fixed; bottom: calc(24px + env(safe-area-inset-bottom)); right: calc(24px + env(safe-area-inset-right)); z-index: 900;
+    width: 42px; height: 42px; border-radius: 50%;
+    border: var(--border-style); background: transparent; color: var(--ink-dark);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; padding: 0;
+    opacity: 0; visibility: hidden; transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.2s;
+}
+#scrollTopBtn.visible { opacity: 0.55; visibility: visible; transform: translateY(0); }
+#scrollTopBtn:hover { opacity: 1; background-color: var(--card-hover-bg); }
+@media (max-width: 480px) { #scrollTopBtn { bottom: 18px; right: 18px; width: 38px; height: 38px; } }
+
+/* HERO СЕКЦИЯ */
+.hero-section { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: start; margin-bottom: 25px; padding-top: 10px; }
+.hero-left h1 { font-size: 68px; font-weight: 700; line-height: 0.95; color: var(--ink-dark); letter-spacing: -2px; }
+.hero-left .sub-title { font-size: 28px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; }
+.hero-left .promo-text { font-size: 16px; color: var(--ink-muted); margin-bottom: 35px; line-height: 1.4; }
+
+.mini-features { display: grid; grid-template-columns: 1fr 1fr; gap: 25px 20px; }
+
+/* Навигационные кнопки внутри телефона-превью — столбиком, по порядку */
+.phone-nav-buttons { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; margin: 0 auto 20px auto; }
+.phone-nav-btn {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    background: transparent; color: var(--ink-dark);
+    height: 34px; border-radius: 10px;
+    font-size: 10.5px; font-weight: 600; cursor: pointer;
+    font-family: inherit; border: 1px solid var(--ink-dark); padding: 0 6px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+.phone-nav-btn i { font-size: 10px; }
+.phone-nav-btn:hover { background: var(--card-hover-bg); }
+.phone-nav-btn:active { transform: scale(0.98); }
+.feat-item { display: flex; gap: 12px; align-items: start; }
+.feat-item i { font-size: 20px; color: var(--ink-dark); margin-top: 2px; }
+.feat-item-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.feat-item-text p { font-size: 13px; color: var(--ink-muted); line-height: 1.2; }
+
+/* СМАРТФОН С ЭФФЕКТОМ СТЕКЛА */
+.phone-view { display: flex; justify-content: center; width: 100%; }
+.phone-canvas {
+    width: 100%; max-width: 320px; border: var(--border-style); border-radius: 34px; padding: 35px 20px; position: relative;
+    background: rgba(242, 241, 237, 0.4); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); text-align: center;
+}
+[data-theme="dark"] .phone-canvas { background: rgba(18, 20, 28, 0.4); }
+.phone-island { width: 100px; height: 22px; border: var(--border-style); border-radius: 12px; margin: 0 auto 25px auto; }
+.phone-logo-container { margin-bottom: 15px; display: flex; justify-content: center; align-items: center; }
+.phone-canvas h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.phone-canvas p { font-size: 13px; color: var(--ink-muted); line-height: 1.3; max-width: 210px; margin: 0 auto 20px auto; }
+
+/* КНОПКИ В СМАРТФОНЕ */
+.phone-buttons-row { display: flex; gap: 10px; width: 100%; max-width: 260px; margin: 0 auto 20px auto; }
+.phone-action-btn {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--ink-dark); color: var(--paper-cream); height: 40px;
+    border-radius: 12px; font-size: 12px; font-weight: 600; text-decoration: none;
+    white-space: nowrap; padding: 0 5px; gap: 6px;
+}
+.phone-action-btn-secondary { background: transparent; border: var(--border-style); color: var(--ink-dark); }
+.phone-action-btn:hover { opacity: 0.85; }
+.phone-action-btn-secondary:hover { background-color: var(--card-hover-bg); }
+
+.phone-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; border-top: var(--dashed-style); margin-top: 25px; padding-top: 15px; }
+.p-stat-box h5 { font-size: 16px; font-weight: 700; }
+.p-stat-box span { font-size: 9px; color: var(--ink-muted); text-transform: uppercase; }
+
+/* КОНТЕЙНЕРЫ СЕКЦИЙ */
+.outline-section-box {
+    border: 1px solid rgba(31, 36, 46, 0.12); border-radius: 20px; padding: 24px; margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); text-align: center;
+    /* Эффект жидкого стекла iOS 26: мягкое свечение + светлая кайма сверху (как преломление) */
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+[data-theme="dark"] .outline-section-box {
+    background: rgba(28, 30, 40, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.box-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-dark); margin-bottom: 8px; }
+.box-subtitle { font-size: 13px; color: var(--ink-muted); margin-bottom: 25px; }
+
+/* ПОИСК И КАТЕГОРИИ */
+.search-container-row { display: flex; gap: 10px; margin-bottom: 18px; position: relative; width: 100%; }
+.search-wrapper { position: relative; flex: 1; }
+.search-input-line {
+    width: 100%; border: var(--border-style); background: transparent; padding: 13px 40px 13px 16px;
+    border-radius: 10px; font-size: 14px; color: var(--ink-dark); outline: none; text-align: left;
+}
+.search-input-line:focus { box-shadow: 0 0 0 3px var(--glow-color); }
+
+.search-clear-btn {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--ink-muted); cursor: pointer; display: none; align-items: center; justify-content: center; width: 24px; height: 24px;
+}
+.search-clear-btn.visible { display: flex; }
+.search-clear-btn:hover { color: var(--ink-dark); }
+
+.settings-toggle-btn {
+    border: var(--border-style); background: transparent; color: var(--ink-dark); width: 48px; height: 48px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background-color 0.2s;
+}
+.settings-toggle-btn:hover { background-color: var(--card-hover-bg); }
+
+.search-inline-hint {
+    position: absolute; top: -22px; left: 16px; font-size: 12px; color: var(--ink-muted); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.2s ease; z-index: 5;
+}
+.search-inline-hint.visible { opacity: 1; }
+.search-inline-hint span { font-weight: 700; text-decoration: underline; cursor: pointer; pointer-events: auto; color: var(--ink-dark); }
+
+/* СКРОЛЛ КАТЕГОРИЙ */
+.category-scroll-container {
+    display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 22px; scrollbar-width: none; -webkit-overflow-scrolling: touch; justify-content: flex-start; width: 100%;
+}
+.category-scroll-container::-webkit-scrollbar { display: none; }
+
+.category-tab-btn {
+    background: transparent; border: var(--border-style); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--ink-dark); cursor: pointer; white-space: nowrap; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;
+}
+.category-tab-btn.active { background: var(--ink-dark); color: var(--paper-cream); border-color: var(--ink-dark); }
+.category-tab-btn:hover:not(.active) { background-color: var(--card-hover-bg); }
+
+#emptySearchState {
+    display: none; flex-direction: column; align-items: center; color: var(--ink-muted); font-size: 13px; margin-top: 15px; padding: 32px 25px; border: var(--dashed-style); border-radius: 16px; gap: 14px; width: 100%;
+}
+#emptySearchState i { font-size: 22px; color: var(--ink-dark); }
+.suggest-order-btn {
+    margin-top: 4px; height: 40px; border-radius: 12px; font-size: 13px; font-weight: 600;
+    background: var(--accent-glass); color: var(--ink-dark);
+    border: 1px solid var(--ink-muted);
+    padding: 0 20px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+    transition: background 0.18s ease, transform 0.12s ease, border-color 0.18s ease;
+}
+.suggest-order-btn i { font-size: 12px; color: var(--ink-muted); transition: color 0.18s ease, transform 0.18s ease; }
+.suggest-order-btn:hover { background: var(--card-hover-bg); border-color: var(--ink-dark); transform: translateY(-1px); }
+.suggest-order-btn:hover i { color: var(--ink-dark); transform: translateX(2px) translateY(-1px); }
+.suggest-order-btn:active { transform: translateY(0); }
+
+/* Постоянная кнопка в шапке каталога */
+.suggest-permanent-btn { margin-top: 0; margin-bottom: 22px; }
+
+/* Текстовые поля формы заказа взлома — как .search-input-line, но без правого padding */
+.suggest-form-input {
+    width: 100%; border: var(--border-style); background: transparent; padding: 12px 16px;
+    border-radius: 10px; font-size: 13px; color: var(--ink-dark); outline: none; text-align: left;
+    margin-top: 10px; font-family: inherit;
+}
+.suggest-form-input:focus { box-shadow: 0 0 0 3px var(--glow-color); }
+
+/* Невалидное поле (ссылка не apps.apple.com) — красная рамка */
+.suggest-form-input.input-invalid {
+    border-color: #d93838;
+    box-shadow: 0 0 0 3px rgba(217, 56, 56, 0.12);
+}
+
+/* Поле «Другое» — показывается через JS при выборе соответствующего чипа */
+.suggest-other-field { display: none; }
+
+/* Кнопка отправки заявки */
+.suggest-submit-btn {
+    width: 100%; height: 44px; border-radius: 12px; font-size: 14px; font-weight: 700;
+    background: var(--ink-dark); color: var(--paper-cream); border: 1px solid var(--ink-dark);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 6px; transition: opacity 0.2s ease, transform 0.1s ease;
+}
+.suggest-submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.suggest-submit-btn:not(:disabled):hover { opacity: 0.85; }
+.suggest-submit-btn:not(:disabled):active { transform: scale(0.98); }
+
+/* КАТАЛОГ ПРИЛОЖЕНИЙ — КАРТОЧКИ КАК В APP STORE */
+.apps-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    min-height: 90px;
+    width: 100%;
+    align-items: start;
+}
+
+/* Карточка: иконка слева + блок информации справа (grid 60px + 1fr) */
+.app-icon-item {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 12px;
+    align-items: start;
+    text-decoration: none;
+    color: var(--ink-dark);
+    cursor: pointer;
+    width: 100%;
+    padding: 14px;
+    font-family: inherit;
+    background: rgba(242, 241, 237, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: var(--border-style);
+    border-radius: 16px;
+    transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    /* Оптимизация: браузер не рендерит карточку пока она вне экрана.
+       contain-intrinsic-size — примерная высота, чтобы скроллбар не прыгал. */
+    content-visibility: auto;
+    contain-intrinsic-size: 120px;
+}
+[data-theme="dark"] .app-icon-item { background: rgba(18, 20, 28, 0.4); }
+.app-icon-item:hover { background: var(--card-hover-bg); transform: translateY(-2px); }
+
+/* Иконка — простая iOS-форма: border-radius 22.5% как в App Store.
+   Подложка меняется по теме: светлая тема → белая подложка (как App Store),
+   тёмная тема → тёмно-серая (как iOS). Белые иконки видны в обоих темах. */
+.app-draw-box {
+    width: 60px; height: 60px;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    background: #ffffff;
+    border-radius: 22.5%;
+    overflow: hidden;
+}
+[data-theme="dark"] .app-draw-box { background: #1c1c1e; }
+.app-draw-box img {
+    width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.app-icon-item:hover .app-draw-box img { transform: scale(1.05); }
+
+.app-draw-box .glare-layer, .tariff-outline-card .glare-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.25) 0%, transparent 60%); opacity: 0; transition: opacity 0.3s; z-index: 2; }
+.app-icon-item:hover .glare-layer, .tariff-outline-card:hover .glare-layer { opacity: 1; }
+
+/* Блок информации внутри карточки */
+.app-info { min-width: 0; display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.app-name { font-size: 13px; font-weight: 700; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; width: 100%; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+.app-meta { font-size: 10px; font-weight: 500; color: var(--ink-muted); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+
+/* Описание: 2 строки в карточке каталога (клик открывает модалку с полным текстом) */
+.app-desc {
+    font-size: 11.5px; color: var(--ink-muted); line-height: 1.45;
+    white-space: pre-line; word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+/* ПАГИНАЦИЯ */
+.pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 30px; width: 100%; }
+.page-nav-btn { background: transparent; border: var(--border-style); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-dark); font-size: 12px; }
+.page-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-nav-btn:not(:disabled):hover { background-color: var(--card-hover-bg); }
+.page-number-indicator { font-size: 13px; font-weight: 700; color: var(--ink-muted); padding: 0 8px; }
+
+/* СКЕЛЕТОНЫ (под новую карточку) */
+.app-skeleton-item { display: grid; grid-template-columns: 60px 1fr; gap: 12px; width: 100%; padding: 14px; animation: skeletonFade 1.2s infinite ease-in-out; }
+.app-skeleton-box { width: 84px; height: 84px; border: var(--border-style); border-radius: 22%; background: var(--skeleton-bg); position: relative; }
+.app-skeleton-box::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transform: translateX(-100%); animation: skeletonShimmer 1.2s infinite; }
+.app-skeleton-text { width: 80%; height: 9px; background: var(--skeleton-bg); border-radius: 4px; margin-bottom: 6px; }
+.app-skeleton-text.short { width: 50%; }
+@keyframes skeletonShimmer { 100% { transform: translateX(100%); } }
+@keyframes skeletonFade { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+/* МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ ПРИЛОЖЕНИЯ (оставлено для совместимости) */
+.app-detail-content { max-width: 440px; text-align: left; padding-top: 30px; }
+.app-detail-close { position: absolute; top: 14px; right: 14px; z-index: 5; }
+
+.app-detail-head { display: flex; gap: 16px; align-items: center; margin-bottom: 20px; }
+/* Иконка в модалке деталей — идентична каталогу (подложка по теме) */
+.app-detail-icon {
+    width: 84px; height: 84px;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    overflow: hidden; flex-shrink: 0;
+    background: #ffffff;
+    border-radius: 22.5%;
+}
+[data-theme="dark"] .app-detail-icon { background: #1c1c1e; }
+.app-detail-icon img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.app-detail-titles { flex: 1; min-width: 0; }
+.app-detail-titles h3 { font-size: 19px; font-weight: 700; line-height: 1.15; margin-bottom: 10px; word-break: break-word; }
+.app-detail-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.detail-chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 8px; border: var(--border-style); color: var(--ink-dark); background: transparent; white-space: nowrap; }
+
+.app-detail-desc { font-size: 13.5px; line-height: 1.55; color: var(--ink-dark); white-space: pre-line; word-break: break-word; margin-bottom: 22px; max-height: 45vh; overflow-y: auto; padding-right: 4px; }
+
+/* Meta-блок в модалке: три плитки iOS / Размер / Версия (как в App Store) */
+.app-detail-meta { display: flex; gap: 7px; margin-bottom: 20px; }
+.app-detail-meta-item { flex: 1; min-width: 0; border: var(--border-style); border-radius: 10px; padding: 7px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--accent-glass); }
+.app-detail-meta-value { font-size: 11.5px; font-weight: 700; color: var(--ink-dark); line-height: 1.2; text-align: center; word-break: break-word; }
+.app-detail-meta-label { font-size: 8.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+
+/* Дата обновления — отдельный бокс внизу с рамкой, с иконкой часов (как в App Store) */
+.app-detail-updated {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 12.5px; font-weight: 600; color: var(--ink-dark); text-align: center;
+    margin-top: 18px; padding: 10px 14px;
+    border: var(--border-style); border-radius: 12px;
+    background: var(--accent-glass);
+}
+.app-detail-updated i { font-size: 12px; color: var(--ink-muted); }
+
+/* Кнопка «Купить доступ» в модалке приложения → прозрачная с обводкой (как nav-кнопки) */
+.app-detail-buy-access {
+    width: 100%; height: 40px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    background: transparent; color: var(--ink-dark); border: 1px solid var(--ink-dark);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 12px; font-family: inherit; transition: background 0.2s ease, transform 0.1s ease;
+}
+.app-detail-buy-access:hover { background: var(--card-hover-bg); }
+.app-detail-buy-access:active { transform: scale(0.98); }
+
+/* МОДАЛКА «КАК ЭТО РАБОТАЕТ» — контент */
+.howitworks-content { max-width: 480px; }
+.howitworks-close { position: absolute; top: 14px; right: 14px; z-index: 5; }
+.howitworks-body { text-align: left; max-height: 70vh; overflow-y: auto; padding-right: 4px; }
+.howitworks-body h3 { font-size: 18px; font-weight: 700; margin-bottom: 14px; line-height: 1.2; }
+.howitworks-body h4 { font-size: 14px; font-weight: 700; margin: 18px 0 6px 0; color: var(--ink-dark); }
+.howitworks-body p { font-size: 13.5px; line-height: 1.6; color: var(--ink-dark); margin-bottom: 10px; }
+.howitworks-body strong { font-weight: 700; }
+.howitworks-body a { color: var(--ink-dark); text-decoration: underline; text-underline-offset: 2px; }
+.howitworks-body a:hover { opacity: 0.7; }
+.howitworks-body hr { border: none; border-top: var(--dashed-style); margin: 18px 0; }
+.howitworks-body ul { padding-left: 20px; margin-bottom: 10px; }
+.howitworks-body li { font-size: 13.5px; line-height: 1.6; color: var(--ink-dark); margin-bottom: 4px; }
+
+/* FAQ-АККОРДЕОН в модалке «Как это работает» */
+.faq-item { border-bottom: 1px solid rgba(31, 36, 46, 0.08); }
+[data-theme="dark"] .faq-item { border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.faq-item:last-child { border-bottom: none; }
+
+.faq-question {
+    width: 100%; display: flex; align-items: center; gap: 12px;
+    background: transparent; border: none; cursor: pointer;
+    padding: 16px 4px; text-align: left; font-family: inherit;
+    transition: opacity 0.2s;
+}
+.faq-question:hover { opacity: 0.7; }
+
+/* Цифра в кружке */
+.faq-number {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--ink-dark); color: var(--paper-cream);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+}
+
+.faq-question-text {
+    flex: 1; font-size: 14px; font-weight: 600; color: var(--ink-dark); line-height: 1.3;
+}
+
+/* Стрелочка — поворачивается при открытии */
+.faq-chevron {
+    font-size: 11px; color: var(--ink-muted);
+    transition: transform 0.3s ease;
+}
+.faq-item.open .faq-chevron { transform: rotate(180deg); }
+
+/* Ответ — скрыт по умолчанию, раскрывается плавно */
+.faq-answer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s ease;
+    padding: 0 4px 0 44px; /* отступ слева = кружок + gap */
+}
+.faq-answer p { font-size: 13.5px; line-height: 1.6; color: var(--ink-muted); margin: 0; }
+.faq-item.open .faq-answer { max-height: 300px; padding-bottom: 16px; }
+
+/* Знак вопроса в тарифах */
+.tariffs-help-btn {
+    background: transparent; border: none; color: var(--ink-muted);
+    cursor: pointer; font-size: 14px; padding: 0;
+    display: flex; align-items: center; transition: color 0.2s;
+}
+.tariffs-help-btn:hover { color: var(--ink-dark); }
+
+/* Модалка «Что такое сертификат и репозиторий» */
+.tariffs-help-content { max-width: 420px; }
+.tariffs-help-body { text-align: left; padding-top: 10px; }
+.tariffs-help-body h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--ink-dark); }
+.tariffs-help-body p { font-size: 13.5px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 16px; }
+.tariffs-help-body hr { border: none; border-top: var(--dashed-style); margin: 18px 0; }
+
+
+/* Адаптив: на мобиле 1 колонка (карточки в столбик) */
+@media (max-width: 768px) {
+    .apps-icon-grid { grid-template-columns: 1fr; }
+    .app-icon-item { padding: 12px; }
+    /* Телефон-превью растягивается на всю ширину секции — рамка совпадает с тарифами */
+    .phone-canvas { max-width: 100%; }
+}
+@media (max-width: 480px) {
+    .app-draw-box { width: 72px; height: 72px; }
+    .app-icon-item { grid-template-columns: 72px 1fr; }
+}
+
+/* МОДАЛЬНОЕ ОКНО — ЦЕНТРИРОВАНИЕ С ОГРАНИЧЕНИЕМ ПО ВЫСОТЕ */
+.ios-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
+    display: flex; align-items: flex-start; justify-content: center; padding: calc(60px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+    overflow-y: auto;
+    opacity: 0; pointer-events: none; transition: opacity 0.06s ease;
+}
+.ios-modal.open { opacity: 1; pointer-events: auto; }
+.ios-modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--modal-backdrop);
+    /* Liquid Glass: сильный блюр + насыщенность (как в iOS 26).
+       На мобиле облегчаем через @media (см. ниже). */
+    backdrop-filter: blur(28px) saturate(180%) brightness(1.05);
+    -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.05);
+}
+
+.ios-modal-content {
+    /* Полупрозрачный «стеклянный» фон с blur — фон сайта просвечивает.
+       Граница 1px тонкая, как преломление света на стекле. */
+    background: rgba(242, 241, 237, 0.72);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    width: 100%; max-width: 400px; padding: 24px; position: relative; z-index: 2001;
+    /* Синхронизировано с opacity (.ios-modal 0.06s) — блюр и контент появляются вместе */
+    transform: scale(0.96) translateY(8px); transition: transform 0.06s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Мягкое свечение вокруг стекла */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 0 0 0.5px rgba(255, 255, 255, 0.1) inset;
+    margin: auto;
+}
+[data-theme="dark"] .ios-modal-content {
+    background: rgba(18, 20, 28, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.ios-modal.open .ios-modal-content { transform: scale(1) translateY(0); }
+
+/* Мобила: облегчаем Liquid Glass чтобы не лагало на слабых устройствах.
+   Убираем saturate и уменьшаем blur — визуально почти то же, но быстрее. */
+@media (max-width: 768px) {
+    .ios-modal-backdrop { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .ios-modal-content { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+}
+
+.modal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: var(--dashed-style); padding-bottom: 12px; }
+.modal-title-text { font-size: 16px; font-weight: 700; }
+.modal-close-btn { background: transparent; border: none; color: var(--ink-dark); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+
+.settings-section-block { margin-bottom: 18px; text-align: left; }
+.section-block-title { font-size: 13px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.3px; }
+
+.chips-inline-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip-label-item { cursor: pointer; display: inline-flex; }
+.chip-label-item input { display: none; }
+.chip-label-item span {
+    border: var(--border-style); border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--ink-dark); transition: all 0.2s;
+}
+.chip-label-item input:checked + span { background: var(--ink-dark); color: var(--paper-cream); }
+
+.modal-reset-filter-btn {
+    width: 100%; height: 38px; border-radius: 10px; border: var(--dashed-style); background: transparent; color: var(--ink-dark); font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
+}
+.modal-reset-filter-btn:hover { background-color: var(--card-hover-bg); border-style: solid; }
+
+/* ТАРИФЫ */
+.tariffs-control-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: var(--dashed-style); padding-bottom: 16px; gap: 15px; }
+.selectors-group { display: flex; gap: 12px; align-items: center; }
+.sliding-selector { display: flex; border: var(--border-style); border-radius: 10px; overflow: hidden; position: relative; z-index: 1; padding: 2px; background: transparent; }
+.selector-highlighter { position: absolute; top: 2px; left: 2px; height: calc(100% - 4px); background: var(--ink-dark); z-index: -1; border-radius: 7px; transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), width 0.35s cubic-bezier(0.25, 1, 0.5, 1); }
+.selector-btn { background: transparent; border: none; padding: 4px 14px; font-size: 12px; font-weight: 700; color: var(--ink-dark); cursor: pointer; position: relative; z-index: 2; transition: color 0.25s; height: 28px; display: flex; align-items: center; justify-content: center; flex: 1; white-space: nowrap; }
+.selector-btn.active { color: var(--paper-cream); }
+
+.tariffs-outline-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 12px; perspective: 1000px; transition: opacity 0.3s ease; margin-top: 15px; width: 100%; }
+.tariff-outline-card {
+    border: 1px solid rgba(31, 36, 46, 0.12); border-radius: 14px; padding: 22px 10px 18px 10px;
+    text-align: center; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    color: var(--ink-dark); cursor: pointer;
+    background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    will-change: transform; flex: 1 1 180px; max-width: 210px; min-width: 140px;
+    transition: transform 0.15s ease, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+[data-theme="dark"] .tariff-outline-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); }
+.tariff-outline-card:hover { background: rgba(255, 255, 255, 0.5); border-color: rgba(31, 36, 46, 0.3); }
+[data-theme="dark"] .tariff-outline-card:hover { background: rgba(255, 255, 255, 0.08); }
+.tariff-outline-card.active {
+    border: 1.5px solid var(--ink-dark); background: rgba(255, 255, 255, 0.55);
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+[data-theme="dark"] .tariff-outline-card.active { background: rgba(255, 255, 255, 0.1); }
+.tariffs-outline-grid.has-active .tariff-outline-card:not(.active) { opacity: 0.5; }
+.tariff-outline-card .days { font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; font-weight: 500; }
+.tariff-outline-card .cost { font-size: clamp(16px, 4vw, 21px); font-weight: 700; white-space: nowrap; }
+
+.mini-badge { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper-cream); border: var(--border-style); padding: 2px 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; border-radius: 5px; z-index: 50; line-height: 1; display: inline-block; white-space: nowrap; }
+
+.tariff-action-container { max-height: 0; opacity: 0; overflow: hidden; transform: translateY(10px); transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), margin-top 0.4s; }
+.tariff-action-container.visible { max-height: 250px; opacity: 1; transform: translateY(0); margin-top: 25px; }
+.action-plate { border: var(--border-style); border-radius: 12px; padding: 20px; background: var(--action-bg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.action-info-text { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+.action-buttons-row { display: flex; gap: 12px; width: 100%; max-width: 500px; }
+
+.action-btn { flex: 1; height: 28px; border-radius: 8px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer; padding: 4px 14px; white-space: nowrap; transition: opacity 0.2s, transform 0.1s, background-color 0.2s, color 0.2s; }
+.action-btn-bot { background: var(--ink-dark); color: var(--paper-cream); border: 1px solid var(--ink-dark); }
+.action-btn-admin { border: var(--border-style); color: var(--ink-dark); background: transparent; }
+
+.why-us-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; justify-content: center; }
+.why-card { text-align: center; text-decoration: none; color: var(--ink-dark); padding: 12px 5px; border-radius: 10px; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; }
+.why-card:hover { border-color: var(--ink-dark); background: var(--card-hover-bg); }
+.why-card i { font-size: 22px; color: var(--ink-dark); margin-bottom: 10px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.why-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+.why-card p { font-size: 11px; color: var(--ink-muted); line-height: 1.2; }
+
+.footer-links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 25px; }
+.footer-line-card { border: var(--border-style); border-radius: 10px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; color: var(--ink-dark); background: rgba(242, 241, 237, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); position: relative; overflow: hidden; justify-content: center; transition: background-color 0.2s, transform 0.1s; }
+[data-theme="dark"] .footer-line-card { background: rgba(18, 20, 28, 0.4); }
+.footer-line-card:hover { background-color: var(--card-hover-bg); }
+.f-icon-draw { font-size: 18px; color: var(--ink-dark); margin-bottom: 6px; height: 22px; display: flex; align-items: center; justify-content: center; }
+.f-info-text h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; line-height: 1.2; }
+.f-info-text p { font-size: 10px; color: var(--ink-muted); line-height: 1.2; }
+.official-copyright-bar { text-align: center; margin-top: 35px; font-size: 12px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.3px; }
+
+@media (max-width: 768px) {
+    .hero-section { grid-template-columns: 1fr; gap: 0; padding-top: 0; margin-bottom: 15px; }
+    /* На мобиле левая часть Hero пуста (преимущества скрыты) — убираем её,
+       чтобы телефон-превью поднялся к шапке. */
+    .hero-left { display: none; }
+    body { padding-top: calc(95px + env(safe-area-inset-top)); padding-bottom: env(safe-area-inset-bottom); }
+    .hero-left h1 { font-size: 56px; }
+    /* Скрываем преимущества на телефоне — экономим место */
+    .promo-text, .mini-features { display: none; }
+    .tariffs-control-header { flex-direction: column; align-items: center; }
+    .selectors-group { flex-direction: column; width: 100%; gap: 10px; }
+    .sliding-selector { width: 100%; }
+    .tariffs-outline-grid { display: flex; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 15px 15px 15px; margin-left: -24px; margin-right: -24px; width: calc(100% + 48px); scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+    .tariff-outline-card { flex: 0 0 165px; max-width: 165px; min-width: 165px; scroll-snap-align: center; }
+    .why-us-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-links-grid { grid-template-columns: 1fr; gap: 10px; }
+    .action-buttons-row { flex-direction: column; gap: 10px; width: 100%; }
+    .action-btn { width: 100%; height: 32px; }
+}

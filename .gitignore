@@ -1,0 +1,6 @@
+# Локальные файлы — не заливать на GitHub
+start-server.bat
+node_modules/
+*.log
+.DS_Store
+Thumbs.db

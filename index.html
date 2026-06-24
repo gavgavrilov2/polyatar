@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- Anti-cache: заставляем браузер всегда брать свежую версию index.html.
+         Сам HTML не кэшируется, а скрипты/стили сбрасываются через ?v=N. -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- SEO -->
+    <title>iAPPS — iOS Сертификаты & Репозиторий приложений</title>
+    <meta name="description" content="iAPPS — каталог из 1500+ взломанных iOS приложений и игр. Сертификаты, репозиторий, тарифные планы. Установка через Telegram-бот.">
+    <meta name="keywords" content="iOS, iPhone, iPaaS, сертификат, репозиторий, взломанные приложения, iAPPS, IPA, SID, Sideload">
+    <meta name="author" content="iAPPS">
+    <meta name="theme-color" content="#0f0f12">
+    <link rel="canonical" href="https://iapps.app/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="iAPPS — iOS Сертификаты & Репозиторий приложений">
+    <meta property="og:description" content="Каталог из 1500+ взломанных iOS приложений. Сертификаты, репозиторий, установка через Telegram-бот.">
+    <meta property="og:site_name" content="iAPPS">
+    <meta property="og:locale" content="ru_RU">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="iAPPS — iOS Сертификаты & Репозиторий">
+    <meta name="twitter:description" content="Каталог из 1500+ взломанных iOS приложений.">
+
+    <!-- Favicon: щит с яблоком (как логотип в шапке) -->
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <!-- Preload: браузер начинает грузить сразу, не дожидаясь JS.
+         Repo.json — самые тяжёлые данные (~700KB), logo — показывается сразу. -->
+    <link rel="preload" href="Repo.json" as="fetch" crossorigin>
+    <link rel="preload" href="logo.png" as="image">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=85">
+</head>
+<body>
+
+    <canvas id="kineticGridCanvas"></canvas>
+
+    <header class="smart-header" id="mainHeader">
+        <div id="scrollProgressBar"></div>
+        <div class="header-container">
+            <a href="#" class="brand-logo elastic-click">
+                <img src="logo.png" alt="iAPPS" class="project-logo-img" width="26" height="26">
+                iAPPS
+            </a>
+            <div class="header-controls">
+                <button class="theme-toggle-btn elastic-click" id="themeToggle"><i class="fas fa-sun"></i></button>
+                <div class="lang-switcher">
+                    <button class="lang-toggle-btn elastic-click" id="langToggleBtn" aria-label="Язык"><i class="fas fa-globe"></i><span class="lang-code-badge" id="langCodeBadge">RU</span></button>
+                    <div class="lang-dropdown" id="langDropdown">
+                        <button class="lang-option" data-lang="ru">Русский</button>
+                        <button class="lang-option" data-lang="ua">Українська</button>
+                        <button class="lang-option" data-lang="en">English</button>
+                        <button class="lang-option" data-lang="es">Español</button>
+                        <button class="lang-option" data-lang="zh">中文</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <button id="scrollTopBtn" aria-label="Наверх"><i class="fas fa-chevron-up"></i></button>
+
+    <div class="main-wrapper" id="mainWrapper">
+
+        <section class="hero-section reveal-box">
+            <div class="hero-left">
+                <h1>iOS</h1>
+                <p class="promo-text" data-i18n="hero_promo">Сертификаты и прокаченные приложения для твоего iPhone и iPad</p>
+                <div class="mini-features">
+                    <div class="feat-item"> <i class="fas fa-bolt"></i> <div class="feat-item-text"> <h4 data-i18n="feat1_title">Моментальная выдача</h4> <p data-i18n="feat1_desc">Доступ к файлам за пару минут</p> </div> </div>
+                    <div class="feat-item"> <i class="fas fa-shield-alt"></i> <div class="feat-item-text"> <h4 data-i18n="feat2_title">Все права (32)</h4> <p data-i18n="feat2_desc">Полная поддержка функций</p> </div> </div>
+                    <div class="feat-item"> <i class="fas fa-headset"></i> <div class="feat-item-text"> <h4 data-i18n="feat3_title">Поддержка 1 год</h4> <p data-i18n="feat3_desc">Помощь по любым IPA</p> </div> </div>
+                    <div class="feat-item"> <i class="fas fa-award"></i> <div class="feat-item-text"> <h4 data-i18n="feat4_title">Гарантия качества</h4> <p data-i18n="feat4_desc">Замена при отзыве Apple</p> </div> </div>
+                </div>
+            </div>
+
+            <div class="phone-view">
+                <div class="phone-canvas">
+                    <div class="phone-island"></div>
+                    <div class="phone-logo-container">
+                        <img src="logo.png" alt="iAPPS" class="project-logo-img phone-logo-img" width="60" height="60">
+                    </div>
+                    <h2 data-i18n="phone_title">Твой личный App Store</h2>
+                    <p data-i18n="phone_desc">Каталог модифицированных приложений для iOS.</p>
+                    <!-- Навигационные кнопки внутри телефона-превью (все одного стиля) -->
+                    <div class="phone-nav-buttons">
+                        <button type="button" id="navAppsBtn" class="phone-nav-btn elastic-click"><i class="fas fa-th-large"></i> <span data-i18n="nav_apps">Список приложений</span></button>
+                        <button type="button" id="navTariffsBtn" class="phone-nav-btn elastic-click"><i class="fas fa-tag"></i> <span data-i18n="nav_tariffs">Тарифы</span></button>
+                        <button type="button" id="navHowItWorksBtn" class="phone-nav-btn elastic-click"><i class="fas fa-question-circle"></i> <span data-i18n="nav_how">Как это работает?</span></button>
+                        <button type="button" id="navSuggestBtn" class="phone-nav-btn elastic-click"><i class="fas fa-bug"></i> <span data-i18n="nav_suggest">Заказать взлом</span></button>
+                        <a href="#" data-link="vpn" target="_blank" rel="noopener" class="phone-nav-btn elastic-click"><i class="fas fa-shield-alt"></i> <span data-i18n="nav_vpn">iVPN Vless</span></a>
+                    </div>
+                    <div class="phone-stats">
+                        <div class="p-stat-box"><span data-i18n="stat_apps">приложений</span><h5 id="heroAppsCount">0+</h5></div>
+                        <div class="p-stat-box"><span data-i18n="stat_users">пользователей</span><h5>60K+</h5></div>
+                        <div class="p-stat-box"><span data-i18n="stat_live">поддержка</span><h5>24/7</h5></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tariffs" class="outline-section-box reveal-box">
+            <div class="tariffs-control-header">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="font-size: 13px; font-weight: 700; text-transform: uppercase;" data-i18n="tariffs_title">Тарифные планы</div>
+                    <button type="button" id="tariffsHelpBtn" class="tariffs-help-btn" aria-label="Что такое сертификат и репозиторий"><i class="far fa-question-circle"></i></button>
+                </div>
+                <div class="selectors-group">
+                    <div class="sliding-selector" id="productSelector">
+                        <div class="selector-highlighter" id="productHighlighter"></div>
+                        <button class="selector-btn active elastic-click" data-prod="cert" data-i18n="prod_cert">Сертификат</button>
+                        <button class="selector-btn elastic-click" data-prod="repo" data-i18n="prod_repo">Репозиторий</button>
+                    </div>
+                    <div class="sliding-selector" id="currencySelector">
+                        <div class="selector-highlighter" id="currencyHighlighter"></div>
+                        <button class="selector-btn active elastic-click" data-curr="rub">RUB</button>
+                        <button class="selector-btn elastic-click" data-curr="uah">UAH</button>
+                        <button class="selector-btn elastic-click" data-curr="usd">USD</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tariffs-outline-grid tilt-container" id="tariffsGrid">
+                <div class="tariff-outline-card elastic-click tilt-card" data-payload="3m">
+                    <div class="glare-layer"></div> <div class="days" data-i18n="dur_3m">3 месяца</div>
+                    <div class="cost price-tag" data-payload="3m">300₽</div>
+                </div>
+                <div class="tariff-outline-card elastic-click tilt-card" data-payload="6m">
+                    <div class="glare-layer"></div> <div class="days" data-i18n="dur_6m">6 месяцев</div>
+                    <div class="cost price-tag" data-payload="6m">450₽</div>
+                </div>
+                <div class="tariff-outline-card elastic-click tilt-card" data-payload="12m">
+                    <div class="glare-layer"></div> <span class="mini-badge" data-i18n="badge_top">Топ</span> <div class="days" data-i18n="dur_12m">12 месяцев</div>
+                    <div class="cost price-tag" data-payload="12m">700₽</div>
+                </div>
+                <div class="tariff-outline-card elastic-click tilt-card" data-payload="24m">
+                    <div class="glare-layer"></div> <div class="days" data-i18n="dur_24m">24 месяца</div>
+                    <div class="cost price-tag" data-payload="24m">1200₽</div>
+                </div>
+            </div>
+
+            <div class="tariff-action-container" id="tariffActionBlock">
+                <div class="action-plate">
+                    <div class="action-info-text" id="actionInfoText" data-i18n="plan_selected">Выбран план</div>
+                    <div class="action-buttons-row">
+                        <a href="#" target="_blank" class="action-btn action-btn-bot elastic-click" id="buyBotBtn"><i class="fas fa-robot"></i> <span data-i18n="buy_bot">Купить через бот</span></a>
+                        <a href="#" target="_blank" class="action-btn action-btn-admin elastic-click" id="buyAdminBtn"><i class="fab fa-telegram-plane"></i> <span data-i18n="write_seller">Написать продавцу</span></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="catalog" class="outline-section-box reveal-box">
+            <div class="apps__header">
+                <h2 class="box-title" data-i18n="catalog_title">Каталог приложений</h2>
+                <p class="box-subtitle" data-i18n="catalog_subtitle">Найдите нужное приложение среди нашей коллекции</p>
+            </div>
+
+            <div class="search-container-row">
+                <div class="search-wrapper">
+                    <input type="text" id="repoSearch" class="search-input-line" data-i18n-placeholder="search_placeholder" placeholder="Поиск приложений..." autocomplete="off">
+                    <button class="search-clear-btn" id="searchClearBtn"><i class="fas fa-times"></i></button>
+                    <div class="search-inline-hint" id="searchInlineHint"><span data-i18n="search_hint_prefix">Возможно, вы искали:</span> <span id="hintSuggestTarget">YouTube</span><span data-i18n="search_hint_suffix">?</span></div>
+                </div>
+                <button class="settings-toggle-btn elastic-click" id="openSettingsBtn" aria-label="Фильтры"><i class="fas fa-sliders-h"></i></button>
+            </div>
+
+            <div id="emptySearchState">
+                <i class="fas fa-search-minus"></i>
+                <p id="emptyStateText">Ничего не нашлось.</p>
+                <button type="button" class="suggest-order-btn elastic-click" id="suggestOrderBtn" style="display: none;">
+                    <i class="fas fa-paper-plane"></i> <span data-i18n="suggest_app">Предложить добавить приложение</span>
+                </button>
+            </div>
+
+            <div class="apps-icon-grid tilt-container" id="appsGrid"></div>
+
+            <div class="pagination-container" id="paginationBlock">
+                <button class="page-nav-btn elastic-click" id="prevPageBtn" disabled><i class="fas fa-chevron-left"></i></button>
+                <span class="page-number-indicator" id="pageIndicator">1 / 1</span>
+                <button class="page-nav-btn elastic-click" id="nextPageBtn" disabled><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+
+        <div class="ios-modal" id="settingsModal">
+            <div class="ios-modal-backdrop" id="modalBackdrop"></div>
+            <div class="ios-modal-content">
+                <div class="modal-header-row">
+                    <h3 class="modal-title-text" data-i18n="settings_title">⚙️ Настройки каталога</h3>
+                    <button class="modal-close-btn" id="closeSettingsBtn"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="set_category">🗂️ Категория</h4>
+                    <div class="chips-inline-row" id="categoryTabs">
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="" checked><span data-i18n="cat_all">🌐 Все</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="social"><span data-i18n="cat_social">💬 Соц.сети</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="music"><span data-i18n="cat_music">🎵 Музыка</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="video"><span data-i18n="cat_video">🎬 Видео</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="design"><span data-i18n="cat_design">🎨 Дизайн</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="network"><span data-i18n="cat_network">🌍 VPN</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="money"><span data-i18n="cat_money">💳 Финансы</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="travel"><span data-i18n="cat_travel">✈️ Путешествия</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="themes"><span data-i18n="cat_themes">🖌️ Темы</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="study"><span data-i18n="cat_study">📚 Учёба</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="office"><span data-i18n="cat_office">📋 Офис</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="games"><span data-i18n="cat_games">🎮 Игры</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="kids"><span data-i18n="cat_kids">👶 Дети</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="life"><span data-i18n="cat_life">💪 Здоровье</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="other"><span data-i18n="cat_other">📦 Другое</span></label>
+                    </div>
+                </div>
+
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="set_sort">↕️ Сортировка</h4>
+                    <div class="chips-inline-row">
+                        <label class="chip-label-item"><input type="radio" name="sortMode" value="time" checked><span data-i18n="sort_new">Новые</span></label>
+                        <label class="chip-label-item"><input type="radio" name="sortMode" value="full"><span data-i18n="sort_all">Все</span></label>
+                    </div>
+                </div>
+
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="set_perpage">📊 Отображать на странице</h4>
+                    <div class="chips-inline-row">
+                        <label class="chip-label-item"><input type="radio" name="itemsPerPage" value="20" checked><span>20</span></label>
+                        <label class="chip-label-item"><input type="radio" name="itemsPerPage" value="50"><span>50</span></label>
+                        <label class="chip-label-item"><input type="radio" name="itemsPerPage" value="100"><span>100</span></label>
+                    </div>
+                </div>
+
+                <button class="modal-reset-filter-btn" id="resetFiltersBtn">
+                    <i class="fas fa-undo-alt"></i> <span data-i18n="set_reset">Сбросить конфигурацию</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- МОДАЛЬНОЕ ОКНО ЗАКАЗА ВЗЛОМА ПРИЛОЖЕНИЯ -->
+        <div class="ios-modal" id="suggestModal">
+            <div class="ios-modal-backdrop" id="suggestBackdrop"></div>
+            <div class="ios-modal-content suggest-modal-content">
+                <div class="modal-header-row">
+                    <h3 class="modal-title-text" data-i18n="suggest_form_title">🔒 Заказ взлома приложения</h3>
+                    <button class="modal-close-btn" id="closeSuggestBtn"><i class="fas fa-times"></i></button>
+                </div>
+
+                <!-- 1. Ссылка на App Store -->
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="suggest_form_appstore">🔗 Ссылка на приложение в App Store</h4>
+                    <input type="text" id="suggestAppstore" class="suggest-form-input" data-i18n-placeholder="suggest_form_appstore_ph" placeholder="https://apps.apple.com/...">
+                </div>
+
+                <!-- 2. Что нужно сделать -->
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="suggest_form_todo">🛠️ Что нужно сделать?</h4>
+                    <div class="chips-inline-row">
+                        <label class="chip-label-item"><input type="radio" name="suggestTodo" value="todo1"><span data-i18n="suggest_form_todo1">Взлом на подписку/покупку (от 300₽)</span></label>
+                        <label class="chip-label-item"><input type="radio" name="suggestTodo" value="todo2"><span data-i18n="suggest_form_todo2">Чистый .ipa без модификаций (200₽)</span></label>
+                        <label class="chip-label-item"><input type="radio" name="suggestTodo" value="todo3"><span data-i18n="suggest_form_todo3">Исправление вылета (300₽)</span></label>
+                        <label class="chip-label-item"><input type="radio" name="suggestTodo" value="other"><span data-i18n="suggest_form_todo_other">Другое</span></label>
+                    </div>
+                    <input type="text" id="suggestTodoOther" class="suggest-form-input suggest-other-field" data-i18n-placeholder="suggest_form_todo_other_ph" placeholder="Опишите что нужно сделать" style="display:none;">
+                </div>
+
+                <!-- 3. Telegram для связи -->
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="suggest_form_tg">✉️ Ваш Telegram для связи</h4>
+                    <input type="text" id="suggestTg" class="suggest-form-input" data-i18n-placeholder="suggest_form_tg_ph" placeholder="@username">
+                </div>
+
+                <!-- 4. Premium подписчик -->
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="suggest_form_premium">⭐ Вы подписчик iApps Premium?</h4>
+                    <div class="chips-inline-row">
+                        <label class="chip-label-item"><input type="radio" name="suggestPremium" value="yes"><span data-i18n="suggest_form_yes">Да</span></label>
+                        <label class="chip-label-item"><input type="radio" name="suggestPremium" value="no"><span data-i18n="suggest_form_no">Нет</span></label>
+                    </div>
+                </div>
+
+                <!-- 5. Сколько готовы оплатить -->
+                <div class="settings-section-block">
+                    <h4 class="section-block-title" data-i18n="suggest_form_pay">💰 Сколько вы готовы оплатить?</h4>
+                    <div class="chips-inline-row">
+                        <label class="chip-label-item"><input type="radio" name="suggestPay" value="300"><span>300₽</span></label>
+                        <label class="chip-label-item"><input type="radio" name="suggestPay" value="500"><span>500₽</span></label>
+                        <label class="chip-label-item"><input type="radio" name="suggestPay" value="other"><span data-i18n="suggest_form_pay_other">Другое</span></label>
+                    </div>
+                    <input type="text" id="suggestPayOther" class="suggest-form-input suggest-other-field" data-i18n-placeholder="suggest_form_pay_other_ph" placeholder="Введите сумму" style="display:none;">
+                </div>
+
+                <button class="suggest-submit-btn" id="suggestSubmitBtn" disabled>
+                    <i class="fas fa-paper-plane"></i> <span data-i18n="suggest_form_submit">Отправить заявку</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ ПРИЛОЖЕНИЯ -->
+        <div class="ios-modal" id="appDetailModal">
+            <div class="ios-modal-backdrop" id="appDetailBackdrop"></div>
+            <div class="ios-modal-content app-detail-content">
+                <button class="modal-close-btn app-detail-close" id="closeAppDetailBtn" aria-label="Закрыть"><i class="fas fa-times"></i></button>
+
+                <div class="app-detail-head">
+                    <div class="app-detail-icon">
+                        <img id="detailImg" src="" alt="">
+                    </div>
+                    <div class="app-detail-titles">
+                        <h3 id="detailName"></h3>
+                        <div class="app-detail-chips" id="detailChips"></div>
+                    </div>
+                </div>
+
+                <div class="app-detail-meta" id="detailMeta"></div>
+
+                <div class="app-detail-desc" id="detailDesc"></div>
+
+                <span class="app-detail-updated" id="detailUpdated"></span>
+                <button type="button" id="detailBuyAccessBtn" class="app-detail-buy-access elastic-click"><i class="fas fa-tag"></i> <span data-i18n="detail_buy_access">Купить доступ</span></button>
+            </div>
+        </div>
+
+        <!-- МОДАЛЬНОЕ ОКНО «КАК ЭТО РАБОТАЕТ» -->
+        <div class="ios-modal" id="howItWorksModal">
+            <div class="ios-modal-backdrop" id="howItWorksBackdrop"></div>
+            <div class="ios-modal-content howitworks-content">
+                <button class="modal-close-btn howitworks-close" id="closeHowItWorksBtn" aria-label="Закрыть"><i class="fas fa-times"></i></button>
+                <div class="howitworks-body" id="howItWorksBody"></div>
+            </div>
+        </div>
+
+        <!-- МОДАЛЬНОЕ ОКНО «ЧТО ТАКОЕ СЕРТИФИКАТ И РЕПОЗИТОРИЙ» -->
+        <div class="ios-modal" id="tariffsHelpModal">
+            <div class="ios-modal-backdrop" id="tariffsHelpBackdrop"></div>
+            <div class="ios-modal-content tariffs-help-content">
+                <button class="modal-close-btn" style="position: absolute; top: 14px; right: 14px; z-index: 5;" id="closeTariffsHelpBtn" aria-label="Закрыть"><i class="fas fa-times"></i></button>
+                <div class="tariffs-help-body">
+                    <h3 data-i18n="th_cert_title">🛡 Сертификат разработчика</h3>
+                    <p data-i18n="th_cert_desc">Нужен для возможности установки сторонних приложений на iPhone и iPad. Действует до одного года максимум. Для использования и установки не требуется ПК.</p>
+                    <hr>
+                    <h3 data-i18n="th_repo_title">📦 Репозиторий</h3>
+                    <p data-i18n="th_repo_desc">Наш каталог взломанных приложений (взломы, моды, банки, удаленные приложения и многие другие). Для использования нужен сертификат.</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="outline-section-box reveal-box">
+            <div class="box-title" data-i18n="why_title">Почему выбирают iAPPS</div>
+            <div class="why-us-grid">
+                <a href="#" data-link="certInfo" target="_blank" class="why-card elastic-click"><i class="far fa-id-card"></i> <h4 data-i18n="why1_title">Расширенный сертификат</h4><p data-i18n="why1_desc">все права</p></a>
+                <a href="#" data-link="channel" target="_blank" class="why-card elastic-click"><i class="fas fa-code-branch"></i> <h4 data-i18n="why2_title">Чистые IPA сборки</h4><p data-i18n="why2_desc">с 2016 года</p></a>
+                <a href="#catalog" class="why-card elastic-click"><i class="fas fa-folder-open"></i> <h4 data-i18n="why3_title">Огромное репо</h4><p data-i18n="why3_desc">1500+ приложений</p></a>
+                <a href="#" data-link="warranty" target="_blank" class="why-card elastic-click"><i class="fas fa-bolt"></i> <h4 data-i18n="why4_title">Моментальные сертификаты</h4><p data-i18n="why4_desc">выдача за минуты</p></a>
+                <a href="#" data-link="reviews" target="_blank" class="why-card elastic-click"><i class="fas fa-star"></i> <h4 data-i18n="why5_title">Наши отзывы</h4><p data-i18n="why5_desc">реальные клиенты</p></a>
+            </div>
+        </section>
+
+        <footer class="footer-links-grid reveal-box">
+            <a href="#" data-link="channel" target="_blank" class="footer-line-card elastic-click"><div class="f-icon-draw"><i class="fab fa-telegram-plane"></i></div><div class="f-info-text"><span data-i18n="foot_channel">НАШ КАНАЛ</span><h3>@iapps_ipa</h3></div></a>
+            <a href="#" data-link="bot" target="_blank" class="footer-line-card elastic-click"><div class="f-icon-draw"><i class="fas fa-robot"></i></div><div class="f-info-text"><span data-i18n="foot_bot">АВТОМАТ-БОТ</span><h3>@iappspay_bot</h3></div></a>
+        </footer>
+
+        <div class="official-copyright-bar" data-i18n="copyright">© 2026 IAppsRepo. Все права защищены.</div>
+    </div>
+
+    <!-- Скрипты: порядок важен! Сначала config.js (ссылки), потом i18n, потом основная логика -->
+    <!-- Данные приложений берутся из Repo.json через fetch — обновляй его, чтобы менять каталог -->
+    <!-- ?v=85 принудительно сбрасывает кэш браузера после обновлений -->
+    <!-- CACHE_VERSION используется в script.js для сброса кэша Repo.json -->
+    <script>window.CACHE_VERSION = 85;</script>
+    <script src="config.js?v=85"></script>
+    <script src="translations.js?v=85"></script>
+    <script src="script.js?v=85"></script>
+</body>
+</html>

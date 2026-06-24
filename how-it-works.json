@@ -1,0 +1,38 @@
+{
+  "_comment": "FAQ «Как это работает». Каждый язык — массив объектов {q: вопрос, a: ответ}. Поддерживается Markdown: **жирный**, [текст](url). При клике на вопрос — раскрывается ответ ниже. Аккордеон: только один открыт одновременно.",
+
+  "ru": [
+    { "q": "Для чего нужен сертификат?", "a": "Сертификат разработчика нужен для возможности установки сторонних приложений на iPhone и iPad. Действует до одного года максимум. Для использования и установки не требуется ПК." },
+    { "q": "Что такое репозиторий?", "a": "Наш каталог взломанных приложений (взломы, моды, банки, удалённые приложения и многие другие). Для использования нужен сертификат." },
+    { "q": "Это безопасно?", "a": "Да. Все приложения проверяются перед добавлением в каталог. Сертификат выдаётся официально, установка происходит через профиль Apple. Не требуется джейлбрейк." },
+    { "q": "Влияет ли сертификат на гарантию?", "a": "Нет. Установка сторонних приложений через сертификат не лишает гарантии устройства. Профиль можно удалить в любой момент в Настройки → Основные → VPN и управление устройством." }
+  ],
+
+  "ua": [
+    { "q": "Для чого потрібен сертифікат?", "a": "Сертифікат розробника потрібен для можливості встановлення сторонніх додатків на iPhone та iPad. Діє до одного року максимум. Для використання та встановлення не потрібен ПК." },
+    { "q": "Що таке репозиторій?", "a": "Наш каталог зламаних додатків (зломи, моди, банки, видалені додатки та багато інших). Для використання потрібен сертифікат." },
+    { "q": "Це безпечно?", "a": "Так. Усі додатки перевіряються перед додаванням до каталогу. Сертифікат видається офіційно, встановлення відбувається через профіль Apple. Не потрібен джейлбрейк." },
+    { "q": "Чи впливає сертифікат на гарантію?", "a": "Ні. Встановлення сторонніх додатків через сертифікат не позбавляє гарантії пристрою. Профіль можна видалити в будь-який момент у Налаштування → Основні → VPN та керування пристроєм." }
+  ],
+
+  "en": [
+    { "q": "What is a certificate for?", "a": "A developer certificate is required to install third-party apps on iPhone and iPad. Valid for up to one year. No PC required for installation." },
+    { "q": "What is a repository?", "a": "Our catalog of cracked apps (cracks, mods, banks, removed apps and many others). A certificate is required to use it." },
+    { "q": "Is it safe?", "a": "Yes. All apps are checked before being added to the catalog. The certificate is issued officially, installation is done via an Apple profile. No jailbreak required." },
+    { "q": "Does the certificate affect the warranty?", "a": "No. Installing third-party apps via a certificate does not void the device warranty. The profile can be removed at any time in Settings → General → VPN & Device Management." }
+  ],
+
+  "es": [
+    { "q": "¿Para qué sirve el certificado?", "a": "Un certificado de desarrollador es necesario para instalar apps de terceros en iPhone y iPad. Válido hasta un año. No requiere PC." },
+    { "q": "¿Qué es el repositorio?", "a": "Nuestro catálogo de apps modificadas (cracks, mods, bancos, apps eliminadas y muchas otras). Se requiere un certificado para usarlo." },
+    { "q": "¿Es seguro?", "a": "Sí. Todas las apps se revisan antes de añadirse al catálogo. El certificado se emite oficialmente, la instalación se hace mediante un perfil de Apple. No requiere jailbreak." },
+    { "q": "¿El certificado afecta la garantía?", "a": "No. Instalar apps de terceros mediante un certificado no anula la garantía del dispositivo. El perfil se puede eliminar en cualquier momento en Ajustes → General → VPN y gestión de dispositivos." }
+  ],
+
+  "zh": [
+    { "q": "证书有什么用？", "a": "开发者证书用于在 iPhone 和 iPad 上安装第三方应用。有效期最长一年。安装无需电脑。" },
+    { "q": "什么是仓库？", "a": "我们的破解应用目录（破解、修改版、银行应用、已下架应用等）。使用需要证书。" },
+    { "q": "这安全吗？", "a": "是的。所有应用在添加到目录前都会经过检查。证书是官方签发的，安装通过 Apple 配置文件完成。无需越狱。" },
+    { "q": "证书会影响保修吗？", "a": "不会。通过证书安装第三方应用不会使设备失去保修。配置文件可以随时在设置 → 通用 → VPN与设备管理中删除。" }
+  ]
+}
