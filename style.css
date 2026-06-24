@@ -716,4 +716,4 @@ body {
 
 /* Иконка-картинка в заголовке раздела «Категория» */
 .section-title-with-icon{display:flex;align-items:center;}
-.cat-section-icon{width:20px;height:20px;object-fit:contain;margin-right:8px;flex-shrink:0;transform:translateY(-2px);}
+.cat-section-icon{width:18px;height:18px;object-fit:contain;margin-right:8px;flex-shrink:0;transform:translateY(-2px);}
