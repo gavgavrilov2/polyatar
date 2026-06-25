@@ -7,3 +7,6 @@ Thumbs.db
 
 Repo.backup.json
 _server.js
+# локальные бэкапы агента
+*.lagbak
+*.blurbak
