@@ -375,8 +375,8 @@ body {
     padding: 14px;
     font-family: inherit;
     background: rgba(242, 241, 237, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    /* blur убран: на карточках каталога он был визуально незаметен,
+       но пересчитывался при скролле для всех видимых карточек (главный источник лагов). */
     border: var(--border-style);
     border-radius: 16px;
     transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
