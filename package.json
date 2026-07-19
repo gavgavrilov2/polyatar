@@ -1,4 +1,12 @@
 {
+  "name": "iapps-catalog",
+  "private": true,
+  "scripts": {
+    "start": "node _server.js",
+    "validate:catalog": "node validate-catalog.js",
+    "export:descriptions": "node export-descriptions.js",
+    "import:descriptions": "node import-descriptions.js"
+  },
   "dependencies": {
     "xlsx": "^0.18.5"
   }

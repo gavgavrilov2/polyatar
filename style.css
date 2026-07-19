@@ -109,6 +109,12 @@ body {
 .elastic-click { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
 .elastic-click:active { transform: scale(0.96) !important; }
 
+/* Контур появляется только при навигации клавиатурой и не меняет обычный вид элементов. */
+:focus-visible {
+    outline: 3px solid var(--ink-dark);
+    outline-offset: 3px;
+}
+
 .project-logo-svg { display: inline-block; vertical-align: middle; }
 .project-logo-svg .shield-path { stroke: var(--ink-dark); stroke-width: 2.2px; fill: var(--logo-fill); stroke-linejoin: round; }
 .project-logo-svg .apple-main { fill: var(--ink-dark); }
@@ -720,3 +726,10 @@ body {
 .section-emoji{flex-shrink:0;line-height:1;}
 .cat-section-png{filter:invert(1) brightness(0.35);}
 [data-theme="dark"] .cat-section-png{filter:none;}
+
+/* Сохраняем компоновку, но выключаем необязательное движение по системному запросу. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    #kineticGridCanvas { display: none; }
+    .reveal-box { opacity: 1; transform: none; }
+}

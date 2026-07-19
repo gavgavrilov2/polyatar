@@ -35,11 +35,11 @@
 
     <!-- Preload: браузер начинает грузить сразу, не дожидаясь JS.
          Repo.json — самые тяжёлые данные (~700KB), logo — показывается сразу. -->
-    <link rel="preload" href="Repo.json" as="fetch" crossorigin>
+    <link rel="preload" href="Repo.json?v=106" as="fetch" crossorigin>
     <link rel="preload" href="logo.png" as="image">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=105">
+    <link rel="stylesheet" href="style.css?v=106">
 </head>
 <body>
 
@@ -192,7 +192,7 @@
             </div>
         </section>
 
-        <div class="ios-modal" id="settingsModal">
+        <div class="ios-modal" id="settingsModal" role="dialog" aria-modal="true" aria-label="Настройки каталога" aria-hidden="true">
             <div class="ios-modal-backdrop" id="modalBackdrop"></div>
             <div class="ios-modal-content">
                 <div class="modal-header-row">
@@ -245,7 +245,7 @@
         </div>
 
         <!-- МОДАЛЬНОЕ ОКНО ЗАКАЗА ВЗЛОМА ПРИЛОЖЕНИЯ -->
-        <div class="ios-modal" id="suggestModal">
+        <div class="ios-modal" id="suggestModal" role="dialog" aria-modal="true" aria-label="Заказ взлома приложения" aria-hidden="true">
             <div class="ios-modal-backdrop" id="suggestBackdrop"></div>
             <div class="ios-modal-content suggest-modal-content">
                 <div class="modal-header-row">
@@ -304,7 +304,7 @@
         </div>
 
         <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ ПРИЛОЖЕНИЯ -->
-        <div class="ios-modal" id="appDetailModal">
+        <div class="ios-modal" id="appDetailModal" role="dialog" aria-modal="true" aria-labelledby="detailName" aria-hidden="true">
             <div class="ios-modal-backdrop" id="appDetailBackdrop"></div>
             <div class="ios-modal-content app-detail-content">
                 <button class="modal-close-btn app-detail-close" id="closeAppDetailBtn" aria-label="Закрыть"><i class="fas fa-times"></i></button>
@@ -329,7 +329,7 @@
         </div>
 
         <!-- МОДАЛЬНОЕ ОКНО «КАК ЭТО РАБОТАЕТ» -->
-        <div class="ios-modal" id="howItWorksModal">
+        <div class="ios-modal" id="howItWorksModal" role="dialog" aria-modal="true" aria-label="Как это работает" aria-hidden="true">
             <div class="ios-modal-backdrop" id="howItWorksBackdrop"></div>
             <div class="ios-modal-content howitworks-content">
                 <button class="modal-close-btn howitworks-close" id="closeHowItWorksBtn" aria-label="Закрыть"><i class="fas fa-times"></i></button>
@@ -338,7 +338,7 @@
         </div>
 
         <!-- МОДАЛЬНОЕ ОКНО «ЧТО ТАКОЕ СЕРТИФИКАТ И РЕПОЗИТОРИЙ» -->
-        <div class="ios-modal" id="tariffsHelpModal">
+        <div class="ios-modal" id="tariffsHelpModal" role="dialog" aria-modal="true" aria-label="Что такое сертификат и репозиторий" aria-hidden="true">
             <div class="ios-modal-backdrop" id="tariffsHelpBackdrop"></div>
             <div class="ios-modal-content tariffs-help-content">
                 <button class="modal-close-btn" style="position: absolute; top: 14px; right: 14px; z-index: 5;" id="closeTariffsHelpBtn" aria-label="Закрыть"><i class="fas fa-times"></i></button>
@@ -373,11 +373,11 @@
 
     <!-- Скрипты: порядок важен! Сначала config.js (ссылки), потом i18n, потом основная логика -->
     <!-- Данные приложений берутся из Repo.json через fetch — обновляй его, чтобы менять каталог -->
-    <!-- ?v=105 принудительно сбрасывает кэш браузера после обновлений -->
+    <!-- ?v=106 принудительно сбрасывает кэш браузера после обновлений -->
     <!-- CACHE_VERSION используется в script.js для сброса кэша Repo.json -->
-    <script>window.CACHE_VERSION = 104;</script>
-    <script src="config.js?v=105"></script>
-    <script src="translations.js?v=105"></script>
-    <script src="script.js?v=105"></script>
+    <script>window.CACHE_VERSION = 106;</script>
+    <script src="config.js?v=106"></script>
+    <script src="translations.js?v=106"></script>
+    <script src="script.js?v=106"></script>
 </body>
 </html>

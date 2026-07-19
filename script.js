@@ -30,11 +30,13 @@ const canvas = document.getElementById('kineticGridCanvas');
 const ctx = canvas.getContext('2d');
 let dots = [];
 // Шаг сетки: на мобиле крупнее (меньше точек → легче CPU), на десктопе мельче.
-const spacing = window.innerWidth < 768 ? 44 : 40;
+let spacing = window.innerWidth < 768 ? 44 : 40;
 const mouse = { x: -1000, y: -1000, radius: 100 };
 const gravityWell = { x: -2000, y: -2000, active: false };
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function initGrid() {
+    spacing = window.innerWidth < 768 ? 44 : 40;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     dots = [];
@@ -48,6 +50,7 @@ function initGrid() {
 
 let _rafId = null, _animRunning = false;
 function startAnimation() {
+    if (reducedMotionQuery.matches) return;
     if (_animRunning) return;
     _animRunning = true;
     _rafId = requestAnimationFrame(animate);
@@ -156,6 +159,22 @@ function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function safeImageUrl(url) {
+    const fallback = 'icons/MdFurman_sign_iapps_logo.jpeg';
+    if (!url) return fallback;
+    if (url.startsWith('icons/')) return url;
+    try {
+        const parsed = new URL(url, window.location.href);
+        return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? parsed.href : fallback;
+    } catch (e) {
+        return fallback;
+    }
+}
+
 // Парсинг одной записи приложения в унифицированный объект
 // Конвертация URL иконки Apple CDN в формат без белых полей (padding).
 // Формат "200x200bb-75.jpg" (bb = bounding box) даёт белые поля вокруг иконки.
@@ -212,11 +231,12 @@ function processAppData(app) {
 
     return {
         title: rawTitle,
-        image: normalizeIconUrl(app.appImage) || 'icons/MdFurman_sign_iapps_logo.jpeg',
+        image: safeImageUrl(normalizeIconUrl(app.appImage)),
         category: category,
         version: app.appVersion || '',
         descRu, descUa, descEn, descEs, descZh,
         updateTime: app.appUpdateTime || '',
+        updateTimestamp: Number.isNaN(Date.parse(app.appUpdateTime)) ? 0 : Date.parse(app.appUpdateTime),
         rawTags: `${rawTitle} ${category} ${descRu} ${descUa} ${descEn} ${descEs} ${descZh}`.toLowerCase()
     };
 }
@@ -265,11 +285,12 @@ function loadLocalFallback() {
         const descRu = app.appDescription || '';
         return {
             title: cleanName,
-            image: normalizeIconUrl(app.appImage),
+            image: safeImageUrl(normalizeIconUrl(app.appImage)),
             category: cat,
             version: app.appVersion || '',
             descRu, descUa: '', descEn: '', descEs: '', descZh: '',
             updateTime: app.appUpdateTime || '',
+            updateTimestamp: Number.isNaN(Date.parse(app.appUpdateTime)) ? 0 : Date.parse(app.appUpdateTime),
             rawTags: app.appName.toLowerCase()
         };
     });
@@ -314,10 +335,10 @@ function renderAppsGridPage() {
         const metaParts = [v.ver, v.size, v.ios].filter(Boolean);
         const metaText = metaParts.join(' · ');
         html += `
-            <button type="button" class="app-icon-item elastic-click" data-app-index="${i}" aria-label="${app.title}">
+            <button type="button" class="app-icon-item elastic-click" data-app-index="${i}" aria-label="${escapeAttr(app.title)}">
                 <div class="app-draw-box">
                     <div class="glare-layer"></div>
-                    <img src="${app.image}" alt="${app.title}" loading="lazy" decoding="async" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='icons/MdFurman_sign_iapps_logo.jpeg';}else{this.onerror=null;}">
+                    <img src="${escapeAttr(app.image)}" alt="${escapeAttr(app.title)}" loading="lazy" decoding="async" onerror="if(!this.dataset.fb){this.dataset.fb='1';this.src='icons/MdFurman_sign_iapps_logo.jpeg';}else{this.onerror=null;}">
                 </div>
                 <div class="app-info">
                     <span class="app-name">${escapeHtml(app.title)}</span>
@@ -338,6 +359,47 @@ const detailChips = document.getElementById('detailChips');
 const detailMeta = document.getElementById('detailMeta');
 const detailDesc = document.getElementById('detailDesc');
 const detailUpdated = document.getElementById('detailUpdated');
+const modalFocusReturn = new Map();
+
+function openModal(modal) {
+    modalFocusReturn.set(modal, document.activeElement);
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const focusTarget = modal.querySelector('.modal-close-btn, button, input, a[href]');
+    if (focusTarget) setTimeout(() => focusTarget.focus(), 0);
+}
+
+function closeModal(modal) {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    if (!document.querySelector('.ios-modal.open')) document.body.style.overflow = '';
+    const opener = modalFocusReturn.get(modal);
+    modalFocusReturn.delete(modal);
+    if (opener && typeof opener.focus === 'function') opener.focus();
+}
+
+document.addEventListener('keydown', (e) => {
+    const modal = document.querySelector('.ios-modal.open');
+    if (!modal) return;
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal(modal);
+        return;
+    }
+    if (e.key !== 'Tab') return;
+    const focusable = [...modal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+    }
+});
 
 // Делегирование кликов по карточкам: открывает модалку деталей приложения.
 // Один listener на контейнере навешивается один раз (init guard) — работает
@@ -383,9 +445,9 @@ function openAppDetail(index) {
     detailDesc.innerText = getLocalizedDesc(app) || t('detail_no_desc');
 
     // Дата обновления — внизу по центру, с иконкой часов (как в App Store)
-    if (app.updateTime) {
+    if (app.updateTimestamp) {
         try {
-            const d = new Date(app.updateTime);
+            const d = new Date(app.updateTimestamp);
             const localeMap = { ru: 'ru-RU', ua: 'uk-UA', en: 'en-US', es: 'es-ES', zh: 'zh-CN' };
             const dateStr = d.toLocaleDateString(localeMap[currentLang] || 'ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
             detailUpdated.innerHTML = `<i class="far fa-clock"></i> ${escapeHtml(t('detail_updated', { d: dateStr }))}`;
@@ -393,22 +455,16 @@ function openAppDetail(index) {
         } catch(e) { detailUpdated.style.display = 'none'; }
     } else { detailUpdated.style.display = 'none'; }
 
-    appDetailModal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    openModal(appDetailModal);
     triggerHaptic();
 }
 
 function closeAppDetail() {
-    appDetailModal.classList.remove('open');
-    document.body.style.overflow = '';
+    closeModal(appDetailModal);
 }
 
 document.getElementById('closeAppDetailBtn').addEventListener('click', closeAppDetail);
 document.getElementById('appDetailBackdrop').addEventListener('click', closeAppDetail);
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && appDetailModal.classList.contains('open')) closeAppDetail();
-});
-
 // Кнопка «Купить доступ» в модалке приложения → закрываем модалку + скроллим к тарифам
 document.getElementById('detailBuyAccessBtn').addEventListener('click', () => {
     closeAppDetail();
@@ -434,7 +490,17 @@ let howItWorksData = null;
 function parseInlineMd(text) {
     let html = escapeHtml(text);
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
+        try {
+            const parsed = new URL(url, window.location.href);
+            if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+                return `<a href="${escapeAttr(parsed.href)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+            }
+        } catch (e) {
+            // Invalid URLs remain plain text below.
+        }
+        return label;
+    });
     return html;
 }
 
@@ -473,8 +539,7 @@ function bindFAQClicks() {
 }
 
 async function openHowItWorks() {
-    howItWorksModal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    openModal(howItWorksModal);
     triggerHaptic();
 
     // Грузим JSON один раз, кэшируем в howItWorksData
@@ -495,8 +560,7 @@ async function openHowItWorks() {
 }
 
 function closeHowItWorks() {
-    howItWorksModal.classList.remove('open');
-    document.body.style.overflow = '';
+    closeModal(howItWorksModal);
 }
 
 document.getElementById('closeHowItWorksBtn').addEventListener('click', closeHowItWorks);
@@ -505,11 +569,11 @@ document.getElementById('howItWorksBackdrop').addEventListener('click', closeHow
 // ===== МОДАЛКА «ЧТО ТАКОЕ СЕРТИФИКАТ И РЕПОЗИТОРИЙ» =====
 const tariffsHelpModal = document.getElementById('tariffsHelpModal');
 document.getElementById('tariffsHelpBtn').addEventListener('click', () => {
-    tariffsHelpModal.classList.add('open');
+    openModal(tariffsHelpModal);
     triggerHaptic();
 });
-document.getElementById('closeTariffsHelpBtn').addEventListener('click', () => tariffsHelpModal.classList.remove('open'));
-document.getElementById('tariffsHelpBackdrop').addEventListener('click', () => tariffsHelpModal.classList.remove('open'));
+document.getElementById('closeTariffsHelpBtn').addEventListener('click', () => closeModal(tariffsHelpModal));
+document.getElementById('tariffsHelpBackdrop').addEventListener('click', () => closeModal(tariffsHelpModal));
 
 // ===== НАВИГАЦИОННЫЕ КНОПКИ В ТЕЛЕФОНЕ-ПРЕВЬЮ =====
 // Список приложений → скролл к каталогу
@@ -631,10 +695,10 @@ function applyFilterAndSettings() {
         // отсутствии даты — сохраняем исходный порядок (stable sort через индекс).
         const withIndex = filteredAppsData.map((app, i) => ({ app, i }));
         withIndex.sort((a, b) => {
-            const ta = a.app.updateTime ? new Date(a.app.updateTime).getTime() : 0;
-            const tb = b.app.updateTime ? new Date(b.app.updateTime).getTime() : 0;
+            const ta = a.app.updateTimestamp;
+            const tb = b.app.updateTimestamp;
             if (tb !== ta) return tb - ta;   // свежие сначала
-            return b.i - a.i;                 // при равенстве — исходный порядок (как было раньше)
+            return a.i - b.i;                 // при равенстве — исходный порядок
         });
         filteredAppsData = withIndex.map(x => x.app);
     }
@@ -664,9 +728,9 @@ document.getElementById('nextPageBtn').addEventListener('click', () => {
 
 // ===== МОДАЛЬНОЕ ОКНО НАСТРОЕК =====
 const settingsModal = document.getElementById('settingsModal');
-document.getElementById('openSettingsBtn').addEventListener('click', () => { settingsModal.classList.add('open'); });
-document.getElementById('closeSettingsBtn').addEventListener('click', () => { settingsModal.classList.remove('open'); });
-document.getElementById('modalBackdrop').addEventListener('click', () => { settingsModal.classList.remove('open'); });
+document.getElementById('openSettingsBtn').addEventListener('click', () => openModal(settingsModal));
+document.getElementById('closeSettingsBtn').addEventListener('click', () => closeModal(settingsModal));
+document.getElementById('modalBackdrop').addEventListener('click', () => closeModal(settingsModal));
 
 // ===== МОДАЛЬНОЕ ОКНО ЗАКАЗА ВЗЛОМА ПРИЛОЖЕНИЯ =====
 // Открытие: из пустого поиска (#suggestOrderBtn) ИЛИ компактной кнопки ➕ в шапке (#suggestHeaderBtn).
@@ -682,13 +746,13 @@ const suggestPayOther = document.getElementById('suggestPayOther');
 function openSuggestModal() {
     // Форма всегда открывается пустой — ссылку App Store пользователь должен
     // вставить сам (с валидацией https://apps.apple.com/).
-    suggestModal.classList.add('open');
+    openModal(suggestModal);
     updateSuggestSubmitState();
 }
 
 document.getElementById('suggestOrderBtn').addEventListener('click', () => { openSuggestModal(); });
-document.getElementById('closeSuggestBtn').addEventListener('click', () => { suggestModal.classList.remove('open'); });
-document.getElementById('suggestBackdrop').addEventListener('click', () => { suggestModal.classList.remove('open'); });
+document.getElementById('closeSuggestBtn').addEventListener('click', () => closeModal(suggestModal));
+document.getElementById('suggestBackdrop').addEventListener('click', () => closeModal(suggestModal));
 
 // Toggle «Другое»: показываем текстовое поле при выборе чипа «Другое»
 document.querySelectorAll('input[name="suggestTodo"]').forEach(radio => {
@@ -762,7 +826,7 @@ suggestSubmitBtn.addEventListener('click', () => {
     });
 
     window.open(`${LINKS.admin}?text=${encodeURIComponent(msg)}`, '_blank');
-    suggestModal.classList.remove('open');
+    closeModal(suggestModal);
     // Очищаем форму после отправки
     suggestAppstore.value = ''; suggestTg.value = '';
     suggestTodoOther.value = ''; suggestPayOther.value = '';
@@ -797,7 +861,7 @@ document.getElementById('resetFiltersBtn').addEventListener('click', () => {
     itemsPerPage = 20;
     currentPage = 1;
     applyFilterAndSettings();
-    settingsModal.classList.remove('open');
+    closeModal(settingsModal);
 });
 
 // ===== ТАРИФЫ И СЕЛЕКТОРЫ =====
@@ -879,27 +943,6 @@ function updateActionBlock() {
     document.getElementById('actionInfoText').innerText = t('plan_info', { p: prodName, d: days, c: price });
     document.getElementById('buyBotBtn').href = `${LINKS.bot}?start=${currentProduct}_${payload}`;
     document.getElementById('buyAdminBtn').href = `${LINKS.admin}?text=${encodeURIComponent(t('buy_admin_msg', { p: prodName, d: days, c: price }))}`;
-}
-
-// ===== TILT-ЭФФЕКТ =====
-// Tilt-эффект навешивается ОДИН раз через делегирование на .tilt-container,
-// а не при каждом рендере страницы (иначе накапливаются дубли слушателей).
-// На мобильных tilt всё равно не работает — обработчик сразу выходит.
-let tiltInitialized = false;
-function initTiltEffect() {
-    if (tiltInitialized) return;
-    tiltInitialized = true;
-    document.querySelectorAll('.tilt-container').forEach(c => {
-        c.addEventListener('mousemove', (e) => {
-            if (window.innerWidth < 768) return;
-            const card = e.target.closest('.tilt-card'); if (!card) return;
-            const r = card.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-            card.style.setProperty('--mouse-x', `${(x / r.width) * 100}%`);
-            card.style.setProperty('--mouse-y', `${(y / r.height) * 100}%`);
-            card.style.transform = `perspective(1000px) rotateX(${(y - r.height/2) / (r.height/2) * -7}deg) rotateY(${(x - r.width/2) / (r.width/2) * 7}deg) scale(1.01)`;
-        });
-        c.addEventListener('mouseout', (e) => { const card = e.target.closest('.tilt-card'); if(card) card.style.transform = 'none'; });
-    });
 }
 
 // ===== ТЁМНАЯ ТЕМА =====
@@ -985,8 +1028,12 @@ window.addEventListener('touchmove', (e) => {
 window.addEventListener('touchend', () => wrapper.style.transform = 'none');
 
 // ===== АНИМАЦИЯ ПОЯВЛЕНИЯ СЕКЦИЙ =====
-const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('revealed'); }); }, { threshold: 0.05 });
-document.querySelectorAll('.reveal-box').forEach(box => observer.observe(box));
+if (reducedMotionQuery.matches) {
+    document.querySelectorAll('.reveal-box').forEach(box => box.classList.add('revealed'));
+} else {
+    const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('revealed'); }); }, { threshold: 0.05 });
+    document.querySelectorAll('.reveal-box').forEach(box => observer.observe(box));
+}
 
 // Троттлинг resize: не чаще 1 раза в 150мс (вместо вызова на каждый пиксель).
 let resizeTimer = null;
@@ -1002,6 +1049,17 @@ window.addEventListener('resize', () => {
 
 // Возврат на вкладку — перерисовать сетку (на случай если она «уснула»).
 document.addEventListener('visibilitychange', () => { if (!document.hidden) startAnimation(); });
+reducedMotionQuery.addEventListener('change', () => {
+    if (reducedMotionQuery.matches && _rafId) {
+        cancelAnimationFrame(_rafId);
+        _rafId = null;
+        _animRunning = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    } else if (!reducedMotionQuery.matches) {
+        initGrid();
+        startAnimation();
+    }
+});
 
 // ===== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ =====
 applyTranslations(); // Применить сохранённый язык до рендера каталога
