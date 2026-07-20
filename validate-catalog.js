@@ -3,7 +3,7 @@ const path = require('path');
 
 const catalogPath = path.join(__dirname, 'Repo.json');
 const knownCategories = new Set([
-    'social', 'music', 'video', 'design', 'network', 'money', 'travel',
+    'social', 'music', 'video', 'design', 'network', 'russia', 'money', 'travel',
     'themes', 'study', 'office', 'games', 'kids', 'life', 'other'
 ]);
 const requiredFields = [
@@ -18,6 +18,7 @@ function getCategory(appName) {
     if (value.startsWith('bank') || value === 'finance' || value.startsWith('money')) return 'money';
     if (value.startsWith('game')) return 'games';
     if (value.startsWith('network') || value === 'vpn') return 'network';
+    if (value.startsWith('russia')) return 'russia';
     if (value.startsWith('kid')) return 'kids';
     if (value === 'health') return 'life';
     if (value === 'navigation') return 'travel';

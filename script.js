@@ -212,6 +212,7 @@ function processAppData(app) {
     if (category.startsWith('social')) category = 'social';
     if (category.startsWith('video')) category = 'video';
     if (category.startsWith('music')) category = 'music';
+    if (category.startsWith('russia')) category = 'russia';
     if (category.startsWith('bank') || category === 'finance' || category.startsWith('money')) category = 'money';
     if (category.startsWith('game')) category = 'games';
     if (category.startsWith('design')) category = 'design';

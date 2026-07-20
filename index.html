@@ -35,11 +35,11 @@
 
     <!-- Preload: браузер начинает грузить сразу, не дожидаясь JS.
          Repo.json — самые тяжёлые данные (~700KB), logo — показывается сразу. -->
-    <link rel="preload" href="Repo.json?v=109" as="fetch" crossorigin>
+    <link rel="preload" href="Repo.json?v=110" as="fetch" crossorigin>
     <link rel="preload" href="logo.png" as="image">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=109">
+    <link rel="stylesheet" href="style.css?v=110">
 </head>
 <body>
 
@@ -209,6 +209,7 @@
                         <label class="chip-label-item"><input type="radio" name="categoryMode" value="video"><span data-i18n="cat_video">🎬 Видео</span></label>
                         <label class="chip-label-item"><input type="radio" name="categoryMode" value="design"><span data-i18n="cat_design">🎨 Дизайн</span></label>
                         <label class="chip-label-item"><input type="radio" name="categoryMode" value="network"><span data-i18n="cat_network">🌍 VPN</span></label>
+                        <label class="chip-label-item"><input type="radio" name="categoryMode" value="russia"><span data-i18n="cat_russia">🇷🇺 Russia</span></label>
                         <label class="chip-label-item"><input type="radio" name="categoryMode" value="money"><span data-i18n="cat_money">💳 Финансы</span></label>
                         <label class="chip-label-item"><input type="radio" name="categoryMode" value="travel"><span data-i18n="cat_travel">✈️ Путешествия</span></label>
                         <label class="chip-label-item"><input type="radio" name="categoryMode" value="themes"><span data-i18n="cat_themes">🖌️ Темы</span></label>
@@ -373,11 +374,11 @@
 
     <!-- Скрипты: порядок важен! Сначала config.js (ссылки), потом i18n, потом основная логика -->
     <!-- Данные приложений берутся из Repo.json через fetch — обновляй его, чтобы менять каталог -->
-    <!-- ?v=109 принудительно сбрасывает кэш браузера после обновлений -->
+    <!-- ?v=110 принудительно сбрасывает кэш браузера после обновлений -->
     <!-- CACHE_VERSION используется в script.js для сброса кэша Repo.json -->
-    <script>window.CACHE_VERSION = 109;</script>
-    <script src="config.js?v=109"></script>
-    <script src="translations.js?v=109"></script>
-    <script src="script.js?v=109"></script>
+    <script>window.CACHE_VERSION = 110;</script>
+    <script src="config.js?v=110"></script>
+    <script src="translations.js?v=110"></script>
+    <script src="script.js?v=110"></script>
 </body>
 </html>
