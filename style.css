@@ -588,9 +588,10 @@ body {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
     display: flex; align-items: flex-start; justify-content: center; padding: calc(60px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
     overflow-y: auto;
-    opacity: 0; pointer-events: none; transition: opacity 0.06s ease;
+    visibility: hidden; pointer-events: none;
+    isolation: isolate;
 }
-.ios-modal.open { opacity: 1; pointer-events: auto; }
+.ios-modal.open { visibility: visible; pointer-events: auto; }
 .ios-modal-backdrop {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--modal-backdrop);
@@ -598,7 +599,13 @@ body {
        На мобиле облегчаем через @media (см. ниже). */
     backdrop-filter: blur(28px) saturate(180%) brightness(1.05);
     -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.05);
+    opacity: 0;
+    will-change: opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.ios-modal.open .ios-modal-backdrop { opacity: 1; }
 
 .ios-modal-content {
     /* Полупрозрачный «стеклянный» фон с blur — фон сайта просвечивает.
@@ -609,8 +616,11 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 24px;
     width: 100%; max-width: 400px; padding: 24px; position: relative; z-index: 2001;
-    /* Синхронизировано с opacity (.ios-modal 0.06s) — блюр и контент появляются вместе */
-    transform: scale(0.96) translateY(8px); transition: transform 0.06s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Размытие фона и окно проявляются одновременно; анимируем только композитные свойства. */
+    opacity: 0; transform: translateY(8px) scale(0.96);
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
     /* Мягкое свечение вокруг стекла */
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 0 0 0.5px rgba(255, 255, 255, 0.1) inset;
     margin: auto;
@@ -619,7 +629,7 @@ body {
     background: rgba(18, 20, 28, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
-.ios-modal.open .ios-modal-content { transform: scale(1) translateY(0); }
+.ios-modal.open .ios-modal-content { opacity: 1; transform: translateY(0) scale(1); }
 
 /* Мобила: облегчаем Liquid Glass чтобы не лагало на слабых устройствах.
    Убираем saturate и уменьшаем blur — визуально почти то же, но быстрее. */

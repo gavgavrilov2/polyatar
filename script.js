@@ -49,8 +49,14 @@ function initGrid() {
 }
 
 let _rafId = null, _animRunning = false;
+function stopAnimation() {
+    if (_rafId) cancelAnimationFrame(_rafId);
+    _rafId = null;
+    _animRunning = false;
+}
+
 function startAnimation() {
-    if (reducedMotionQuery.matches) return;
+    if (reducedMotionQuery.matches || document.querySelector('.ios-modal.open')) return;
     if (_animRunning) return;
     _animRunning = true;
     _rafId = requestAnimationFrame(animate);
@@ -366,6 +372,7 @@ function openModal(modal) {
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    stopAnimation();
     const focusTarget = modal.querySelector('.modal-close-btn, button, input, a[href]');
     if (focusTarget) setTimeout(() => focusTarget.focus(), 0);
 }
@@ -373,7 +380,10 @@ function openModal(modal) {
 function closeModal(modal) {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
-    if (!document.querySelector('.ios-modal.open')) document.body.style.overflow = '';
+    if (!document.querySelector('.ios-modal.open')) {
+        document.body.style.overflow = '';
+        startAnimation();
+    }
     const opener = modalFocusReturn.get(modal);
     modalFocusReturn.delete(modal);
     if (opener && typeof opener.focus === 'function') opener.focus();
@@ -1051,9 +1061,7 @@ window.addEventListener('resize', () => {
 document.addEventListener('visibilitychange', () => { if (!document.hidden) startAnimation(); });
 reducedMotionQuery.addEventListener('change', () => {
     if (reducedMotionQuery.matches && _rafId) {
-        cancelAnimationFrame(_rafId);
-        _rafId = null;
-        _animRunning = false;
+        stopAnimation();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     } else if (!reducedMotionQuery.matches) {
         initGrid();
