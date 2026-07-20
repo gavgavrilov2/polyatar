@@ -240,6 +240,7 @@ function processAppData(app) {
         image: safeImageUrl(normalizeIconUrl(app.appImage)),
         category: category,
         version: app.appVersion || '',
+        parsedVersion: parseVersion(app.appVersion),
         descRu, descUa, descEn, descEs, descZh,
         updateTime: app.appUpdateTime || '',
         updateTimestamp: Number.isNaN(Date.parse(app.appUpdateTime)) ? 0 : Date.parse(app.appUpdateTime),
@@ -294,6 +295,7 @@ function loadLocalFallback() {
             image: safeImageUrl(normalizeIconUrl(app.appImage)),
             category: cat,
             version: app.appVersion || '',
+            parsedVersion: parseVersion(app.appVersion),
             descRu, descUa: '', descEn: '', descEs: '', descZh: '',
             updateTime: app.appUpdateTime || '',
             updateTimestamp: Number.isNaN(Date.parse(app.appUpdateTime)) ? 0 : Date.parse(app.appUpdateTime),
@@ -336,7 +338,7 @@ function renderAppsGridPage() {
     let html = '';
     for (let i = startIndex; i < endIndex; i++) {
         const app = filteredAppsData[i];
-        const v = parseVersion(app.version);
+        const v = app.parsedVersion;
         // Порядок: Версия · Размер · iOS (как просил пользователь)
         const metaParts = [v.ver, v.size, v.ios].filter(Boolean);
         const metaText = metaParts.join(' · ');
@@ -418,6 +420,11 @@ let appClicksBound = false;
 function bindAppCardClicks() {
     if (appClicksBound) return;
     appClicksBound = true;
+    appsGrid.addEventListener('pointerdown', (e) => {
+        const image = e.target.closest('.app-icon-item')?.querySelector('img');
+        // Запускаем decode до click, но никогда не задерживаем открытие модалки.
+        if (image && typeof image.decode === 'function') image.decode().catch(() => {});
+    }, { passive: true });
     appsGrid.addEventListener('click', (e) => {
         const card = e.target.closest('.app-icon-item');
         if (!card) return;
@@ -432,7 +439,7 @@ function bindAppCardClicks() {
 function openAppDetail(index) {
     const app = filteredAppsData[index];
     if (!app) return;
-    const v = parseVersion(app.version);
+    const v = app.parsedVersion;
 
     detailImg.src = app.image;
     detailImg.alt = app.title;
