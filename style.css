@@ -407,6 +407,8 @@ body {
 [data-theme="dark"] .app-draw-box { background: #1c1c1e; }
 .app-draw-box img {
     width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+    /* Safari может показать первый кадр новой иконки до маски родителя. */
+    border-radius: inherit; clip-path: inset(0 round 22.5%);
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .app-icon-item:hover .app-draw-box img { transform: scale(1.05); }
@@ -460,7 +462,11 @@ body {
     border-radius: 22.5%;
 }
 [data-theme="dark"] .app-detail-icon { background: #1c1c1e; }
-.app-detail-icon img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.app-detail-icon img {
+    width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+    /* Дублируем маску на изображении, чтобы избежать квадратного кадра при decode в Safari. */
+    border-radius: inherit; clip-path: inset(0 round 22.5%);
+}
 .app-detail-titles { flex: 1; min-width: 0; }
 .app-detail-titles h3 { font-size: 19px; font-weight: 700; line-height: 1.15; margin-bottom: 10px; word-break: break-word; }
 .app-detail-chips { display: flex; flex-wrap: wrap; gap: 6px; }
