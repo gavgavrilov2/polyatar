@@ -651,6 +651,9 @@ body {
 .chip-label-item span {
     border: var(--border-style); border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--ink-dark); transition: all 0.2s;
 }
+.chip-label-item > span { display: inline-flex; align-items: center; gap: 6px; }
+.chip-label-item .category-icon { width: 16px; height: 16px; flex: 0 0 16px; display: block; }
+.chip-label-item .category-icon + span { border: 0; border-radius: 0; padding: 0; font: inherit; color: inherit; transition: none; }
 .chip-label-item input:checked + span { background: var(--ink-dark); color: var(--paper-cream); }
 
 .modal-reset-filter-btn {
