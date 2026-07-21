@@ -50,6 +50,7 @@ const names = new Map();
 const indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 const translations = fs.readFileSync(path.join(__dirname, 'translations.js'), 'utf8');
 const serviceWorker = fs.readFileSync(path.join(__dirname, 'service-worker.js'), 'utf8');
+const config = fs.readFileSync(path.join(__dirname, 'config.js'), 'utf8');
 
 const cacheVersion = (indexHtml.match(/window\.CACHE_VERSION\s*=\s*(\d+)/) || [])[1];
 const workerVersion = (serviceWorker.match(/CACHE_VERSION\s*=\s*'iapps-v(\d+)'/) || [])[1];
@@ -69,6 +70,7 @@ if (!indexHtml.includes(`property="og:image" content="${siteUrl}og-image.png"`))
 if (!indexHtml.includes('name="twitter:card" content="summary_large_image"')) errors.push('Twitter large image card is missing.');
 if (fs.existsSync(path.join(__dirname, 'robots.txt')) && !fs.readFileSync(path.join(__dirname, 'robots.txt'), 'utf8').includes(`${siteUrl}sitemap.xml`)) errors.push('robots.txt sitemap URL is missing or incorrect.');
 if (fs.existsSync(path.join(__dirname, 'sitemap.xml')) && !fs.readFileSync(path.join(__dirname, 'sitemap.xml'), 'utf8').includes(siteUrl)) errors.push('sitemap.xml site URL is missing or incorrect.');
+if (!/measurementId:\s*'G-[A-Z0-9]+'/.test(config)) errors.push('Google Analytics measurement ID is missing or invalid.');
 
 Object.entries(categoryAssets).forEach(([category, filename]) => {
     const filterPattern = new RegExp(`name="categoryMode" value="${category}"`);

@@ -58,3 +58,7 @@ This forces the Service Worker and browser to fetch the current catalog and stat
 ## Social previews and SEO
 
 `og-image.png` is the 1200x630 social-preview image used by Telegram, Discord, VK, and other Open Graph clients. `robots.txt` and `sitemap.xml` currently use the GitHub Pages URL. When a custom domain is configured, update the canonical URL, Open Graph URLs, `robots.txt`, and `sitemap.xml` together.
+
+## Analytics
+
+Google Analytics 4 is configured in `config.js`. To move analytics to another Google account or resource, replace only `ANALYTICS.measurementId`. The site tracks catalog search, category and tariff choices, application-detail views, purchase contact clicks, VPN clicks, and submitted app requests. Search text, application titles, Telegram usernames, and form content are not sent as analytics events.

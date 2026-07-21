@@ -25,5 +25,12 @@ const LINKS = {
     fallbackIcon: 'icons/MdFurman_sign_iapps_logo.jpeg',
 };
 
+// ===== GOOGLE ANALYTICS 4 =====
+// Чтобы перенести статистику в другой ресурс, замени только measurementId.
+const ANALYTICS = {
+    measurementId: 'G-G45W8JV5ZR',
+};
+
 // Делаем глобально доступным
 window.LINKS = LINKS;
+window.ANALYTICS = ANALYTICS;

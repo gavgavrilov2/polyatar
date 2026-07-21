@@ -11,6 +11,25 @@ let itemsPerPage = 20;
 let selectedCategory = '';
 let currentSortMode = 'time';
 
+function trackEvent(name, params) {
+    if (typeof window.gtag === 'function') window.gtag('event', name, params);
+}
+
+function initAnalytics() {
+    const measurementId = window.ANALYTICS && window.ANALYTICS.measurementId;
+    if (!/^G-[A-Z0-9]+$/.test(measurementId || '')) return;
+
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function() { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', measurementId);
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+    document.head.appendChild(script);
+}
+
 function triggerHaptic() {
     if (navigator.vibrate) navigator.vibrate(12);
     else if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
@@ -474,6 +493,7 @@ function openAppDetail(index) {
     } else { detailUpdated.style.display = 'none'; }
 
     openModal(appDetailModal);
+    trackEvent('view_app_details', { app_category: app.category });
     triggerHaptic();
 }
 
@@ -625,6 +645,7 @@ document.querySelectorAll('input[name="categoryMode"]').forEach(radio => {
         selectedCategory = this.value;
         currentPage = 1;
         applyFilterAndSettings();
+        trackEvent('select_category', { category: selectedCategory || 'all' });
     });
 });
 
@@ -637,6 +658,7 @@ function debounceSearch() {
         currentPage = 1;
         applyFilterAndSettings();
         handleInlineAutocomplete();
+        if (searchInput.value.trim()) trackEvent('search_catalog');
     }, 220);
 }
 
@@ -844,6 +866,7 @@ suggestSubmitBtn.addEventListener('click', () => {
     });
 
     window.open(`${LINKS.admin}?text=${encodeURIComponent(msg)}`, '_blank');
+    trackEvent('submit_app_request');
     closeModal(suggestModal);
     // Очищаем форму после отправки
     suggestAppstore.value = ''; suggestTg.value = '';
@@ -894,6 +917,7 @@ document.querySelectorAll('#productSelector .selector-btn').forEach(btn => {
         document.querySelectorAll('#productSelector .selector-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active'); currentProduct = this.getAttribute('data-prod');
         updateHighlighter(productHighlighter, this); updateAllPrices(); updateActionBlock();
+        trackEvent('select_product', { product: currentProduct });
     });
 });
 
@@ -903,6 +927,7 @@ document.querySelectorAll('#currencySelector .selector-btn').forEach(btn => {
         this.classList.add('active'); currentCurrency = this.getAttribute('data-curr');
         localStorage.setItem('iapps_currency', currentCurrency);
         updateHighlighter(currencyHighlighter, this); updateAllPrices(); updateActionBlock();
+        trackEvent('select_currency', { currency: currentCurrency });
     });
 });
 
@@ -944,6 +969,7 @@ document.querySelectorAll('.tariff-outline-card').forEach(card => {
         document.querySelectorAll('.tariff-outline-card').forEach(c => c.classList.remove('active'));
         this.classList.add('active'); tariffsGrid.classList.add('has-active'); activeCard = this;
         updateActionBlock(); tariffActionBlock.classList.add('visible');
+        trackEvent('select_plan', { product: currentProduct, duration: this.getAttribute('data-payload'), currency: currentCurrency });
 
         if (window.innerWidth < 768) {
             tariffsGrid.scrollTo({ left: this.offsetLeft - (tariffsGrid.offsetWidth/2) + (this.offsetWidth/2), behavior: 'smooth' });
@@ -1080,6 +1106,7 @@ reducedMotionQuery.addEventListener('change', () => {
 // ===== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ =====
 applyTranslations(); // Применить сохранённый язык до рендера каталога
 initLangSwitcher();  // Подключить переключатель языка
+initAnalytics();
 
 // Подставляем URL из config.js во все элементы с data-link="ключ".
 // Например: <a href="#" data-link="faq"> → href = LINKS.faq
@@ -1087,6 +1114,10 @@ document.querySelectorAll('[data-link]').forEach(el => {
     const key = el.getAttribute('data-link');
     if (window.LINKS && LINKS[key]) el.href = LINKS[key];
 });
+
+document.getElementById('buyBotBtn').addEventListener('click', () => trackEvent('click_purchase_bot', { product: currentProduct, currency: currentCurrency }));
+document.getElementById('buyAdminBtn').addEventListener('click', () => trackEvent('click_purchase_admin', { product: currentProduct, currency: currentCurrency }));
+document.querySelectorAll('[data-link="vpn"]').forEach(el => el.addEventListener('click', () => trackEvent('click_vpn')));
 
 // Синхронизация активной кнопки валюты с сохранённым значением
 document.querySelectorAll('#currencySelector .selector-btn').forEach(b => {
