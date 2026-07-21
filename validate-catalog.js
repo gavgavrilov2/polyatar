@@ -66,7 +66,7 @@ if (!cacheVersion || cacheVersion !== workerVersion || preloadVersion !== cacheV
     if (!fs.existsSync(path.join(__dirname, filename))) errors.push(`missing SEO file: ${filename}.`);
 });
 if (!indexHtml.includes(`rel="canonical" href="${siteUrl}"`)) errors.push('canonical URL is missing or incorrect.');
-if (!indexHtml.includes(`property="og:image" content="${siteUrl}og-image.png?v=2"`)) errors.push('Open Graph image URL is missing or incorrect.');
+if (!indexHtml.includes(`property="og:image" content="${siteUrl}og-image.png?v=3"`)) errors.push('Open Graph image URL is missing or incorrect.');
 if (!indexHtml.includes('name="twitter:card" content="summary_large_image"')) errors.push('Twitter large image card is missing.');
 if (fs.existsSync(path.join(__dirname, 'robots.txt')) && !fs.readFileSync(path.join(__dirname, 'robots.txt'), 'utf8').includes(`${siteUrl}sitemap.xml`)) errors.push('robots.txt sitemap URL is missing or incorrect.');
 if (fs.existsSync(path.join(__dirname, 'sitemap.xml')) && !fs.readFileSync(path.join(__dirname, 'sitemap.xml'), 'utf8').includes(siteUrl)) errors.push('sitemap.xml site URL is missing or incorrect.');
