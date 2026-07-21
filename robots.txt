@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gavgavrilov2.github.io/polyatar/sitemap.xml

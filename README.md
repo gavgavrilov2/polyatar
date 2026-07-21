@@ -54,3 +54,7 @@ Before publishing a user-visible asset or JSON update, increment the same versio
 - `CACHE_VERSION` in `service-worker.js`
 
 This forces the Service Worker and browser to fetch the current catalog and static assets.
+
+## Social previews and SEO
+
+`og-image.png` is the 1200x630 social-preview image used by Telegram, Discord, VK, and other Open Graph clients. `robots.txt` and `sitemap.xml` currently use the GitHub Pages URL. When a custom domain is configured, update the canonical URL, Open Graph URLs, `robots.txt`, and `sitemap.xml` together.

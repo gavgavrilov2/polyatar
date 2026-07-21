@@ -12,7 +12,7 @@
 // получали свежие данные, а не вечный офлайн-кэш).
 // ==========================================================================
 
-const CACHE_VERSION = 'iapps-v113';
+const CACHE_VERSION = 'iapps-v114';
 const CORE_ASSETS = [
     './',
     './index.html',
@@ -23,7 +23,8 @@ const CORE_ASSETS = [
     './prices.json',
     './how-it-works.json',
     './Repo.json',
-    './logo.png'
+    './logo.png',
+    './og-image.png'
 ];
 
 // Установка: кэшируем core-ресурсы

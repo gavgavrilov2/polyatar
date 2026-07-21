@@ -55,10 +55,20 @@ const cacheVersion = (indexHtml.match(/window\.CACHE_VERSION\s*=\s*(\d+)/) || []
 const workerVersion = (serviceWorker.match(/CACHE_VERSION\s*=\s*'iapps-v(\d+)'/) || [])[1];
 const resourceVersions = [...indexHtml.matchAll(/(?:style\.css|config\.js|translations\.js|script\.js)\?v=(\d+)/g)].map(match => match[1]);
 const preloadVersion = (indexHtml.match(/Repo\.json\?v=(\d+)/) || [])[1];
+const siteUrl = 'https://gavgavrilov2.github.io/polyatar/';
 
 if (!cacheVersion || cacheVersion !== workerVersion || preloadVersion !== cacheVersion || resourceVersions.some(version => version !== cacheVersion)) {
     errors.push(`cache versions are inconsistent (HTML: ${cacheVersion || 'missing'}, Service Worker: ${workerVersion || 'missing'}).`);
 }
+
+['og-image.png', 'robots.txt', 'sitemap.xml'].forEach((filename) => {
+    if (!fs.existsSync(path.join(__dirname, filename))) errors.push(`missing SEO file: ${filename}.`);
+});
+if (!indexHtml.includes(`rel="canonical" href="${siteUrl}"`)) errors.push('canonical URL is missing or incorrect.');
+if (!indexHtml.includes(`property="og:image" content="${siteUrl}og-image.png"`)) errors.push('Open Graph image URL is missing or incorrect.');
+if (!indexHtml.includes('name="twitter:card" content="summary_large_image"')) errors.push('Twitter large image card is missing.');
+if (fs.existsSync(path.join(__dirname, 'robots.txt')) && !fs.readFileSync(path.join(__dirname, 'robots.txt'), 'utf8').includes(`${siteUrl}sitemap.xml`)) errors.push('robots.txt sitemap URL is missing or incorrect.');
+if (fs.existsSync(path.join(__dirname, 'sitemap.xml')) && !fs.readFileSync(path.join(__dirname, 'sitemap.xml'), 'utf8').includes(siteUrl)) errors.push('sitemap.xml site URL is missing or incorrect.');
 
 Object.entries(categoryAssets).forEach(([category, filename]) => {
     const filterPattern = new RegExp(`name="categoryMode" value="${category}"`);
