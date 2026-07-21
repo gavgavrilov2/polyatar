@@ -1113,8 +1113,38 @@ setTimeout(() => {
 // Регистрируем только на http(s) — на file:// не работает (и не нужна).
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js').catch((err) => {
+        const updateNotice = document.getElementById('updateNotice');
+        const updateSiteBtn = document.getElementById('updateSiteBtn');
+        let waitingWorker = null;
+        let updateRequested = false;
+
+        function showUpdateNotice(worker) {
+            waitingWorker = worker;
+            updateNotice.classList.add('visible');
+        }
+
+        navigator.serviceWorker.register('service-worker.js').then((registration) => {
+            if (registration.waiting) showUpdateNotice(registration.waiting);
+            registration.addEventListener('updatefound', () => {
+                const installingWorker = registration.installing;
+                if (!installingWorker) return;
+                installingWorker.addEventListener('statechange', () => {
+                    if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showUpdateNotice(installingWorker);
+                    }
+                });
+            });
+        }).catch((err) => {
             console.log('SW registration failed:', err);
+        });
+
+        updateSiteBtn.addEventListener('click', () => {
+            if (!waitingWorker) return;
+            updateRequested = true;
+            waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+        });
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (updateRequested) window.location.reload();
         });
     });
 }

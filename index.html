@@ -35,11 +35,11 @@
 
     <!-- Preload: браузер начинает грузить сразу, не дожидаясь JS.
          Repo.json — самые тяжёлые данные (~700KB), logo — показывается сразу. -->
-    <link rel="preload" href="Repo.json?v=112" as="fetch" crossorigin>
+    <link rel="preload" href="Repo.json?v=113" as="fetch" crossorigin>
     <link rel="preload" href="logo.png" as="image">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=112">
+    <link rel="stylesheet" href="style.css?v=113">
 </head>
 <body>
 
@@ -372,13 +372,18 @@
         <div class="official-copyright-bar" data-i18n="copyright">© 2026 IAppsRepo. Все права защищены.</div>
     </div>
 
+    <div class="update-notice" id="updateNotice" role="status" aria-live="polite">
+        <span data-i18n="update_ready">Доступна новая версия</span>
+        <button type="button" id="updateSiteBtn" data-i18n="update_action">Обновить</button>
+    </div>
+
     <!-- Скрипты: порядок важен! Сначала config.js (ссылки), потом i18n, потом основная логика -->
     <!-- Данные приложений берутся из Repo.json через fetch — обновляй его, чтобы менять каталог -->
-    <!-- ?v=112 принудительно сбрасывает кэш браузера после обновлений -->
+    <!-- ?v=113 принудительно сбрасывает кэш браузера после обновлений -->
     <!-- CACHE_VERSION используется в script.js для сброса кэша Repo.json -->
-    <script>window.CACHE_VERSION = 112;</script>
-    <script src="config.js?v=112"></script>
-    <script src="translations.js?v=112"></script>
-    <script src="script.js?v=112"></script>
+    <script>window.CACHE_VERSION = 113;</script>
+    <script src="config.js?v=113"></script>
+    <script src="translations.js?v=113"></script>
+    <script src="script.js?v=113"></script>
 </body>
 </html>

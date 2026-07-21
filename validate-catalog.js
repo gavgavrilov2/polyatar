@@ -10,6 +10,12 @@ const requiredFields = [
     'appName', 'appImage', 'appVersion', 'appUpdateTime',
     'descriptionRu', 'descriptionUa', 'descriptionEn', 'descriptionEs', 'descriptionZh'
 ];
+const categoryAssets = {
+    social: 'Social.svg', music: 'Music.svg', video: 'Video.svg', design: 'Design.svg',
+    network: 'VPN.svg', russia: 'Russia.svg', money: 'Finance.svg', travel: 'Travel.svg',
+    themes: 'Themes.svg', study: 'Study.svg', office: 'Office.svg', games: 'Games.svg',
+    kids: 'Kids.svg', life: 'Health.svg', other: 'Other.svg'
+};
 
 function getCategory(appName) {
     const tag = String(appName).split('#')[1];
@@ -41,6 +47,42 @@ if (!Array.isArray(apps)) {
 const errors = [];
 const warnings = [];
 const names = new Map();
+const indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+const translations = fs.readFileSync(path.join(__dirname, 'translations.js'), 'utf8');
+const serviceWorker = fs.readFileSync(path.join(__dirname, 'service-worker.js'), 'utf8');
+
+const cacheVersion = (indexHtml.match(/window\.CACHE_VERSION\s*=\s*(\d+)/) || [])[1];
+const workerVersion = (serviceWorker.match(/CACHE_VERSION\s*=\s*'iapps-v(\d+)'/) || [])[1];
+const resourceVersions = [...indexHtml.matchAll(/(?:style\.css|config\.js|translations\.js|script\.js)\?v=(\d+)/g)].map(match => match[1]);
+const preloadVersion = (indexHtml.match(/Repo\.json\?v=(\d+)/) || [])[1];
+
+if (!cacheVersion || cacheVersion !== workerVersion || preloadVersion !== cacheVersion || resourceVersions.some(version => version !== cacheVersion)) {
+    errors.push(`cache versions are inconsistent (HTML: ${cacheVersion || 'missing'}, Service Worker: ${workerVersion || 'missing'}).`);
+}
+
+Object.entries(categoryAssets).forEach(([category, filename]) => {
+    const filterPattern = new RegExp(`name="categoryMode" value="${category}"`);
+    const translationPattern = new RegExp(`cat_${category}:`, 'g');
+    const iconPath = path.join(__dirname, 'icons', 'settings', filename);
+
+    if (!filterPattern.test(indexHtml)) errors.push(`missing category filter: ${category}.`);
+    if ((translations.match(translationPattern) || []).length !== 5) errors.push(`missing category translations: ${category}.`);
+    if (!fs.existsSync(iconPath)) {
+        errors.push(`missing category icon: icons/settings/${filename}.`);
+    } else {
+        const icon = fs.readFileSync(iconPath, 'utf8');
+        if (!icon.includes('#8d96a8')) errors.push(`unexpected category icon color: icons/settings/${filename}.`);
+    }
+});
+
+if (!/name="categoryMode" value=""/.test(indexHtml)) errors.push('missing category filter: all.');
+if ((translations.match(/cat_all:/g) || []).length !== 5) errors.push('missing category translations: all.');
+const allIconPath = path.join(__dirname, 'icons', 'settings', 'All.svg');
+if (!fs.existsSync(allIconPath)) {
+    errors.push('missing category icon: icons/settings/All.svg.');
+} else if (!fs.readFileSync(allIconPath, 'utf8').includes('#8d96a8')) {
+    errors.push('unexpected category icon color: icons/settings/All.svg.');
+}
 
 apps.forEach((app, index) => {
     requiredFields.forEach((field) => {

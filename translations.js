@@ -40,7 +40,7 @@ const I18N = {
         why2_title: 'Чистые IPA сборки', why2_desc: 'с 2016 года', why3_title: 'Огромное репо', why3_desc: '1500+ приложений',
         why4_title: 'Моментальные сертификаты', why4_desc: 'выдача за минуты', why5_title: 'Наши отзывы', why5_desc: 'реальные клиенты',
         foot_channel: 'НАШ КАНАЛ', foot_vpn: 'НАШ ВПН', foot_bot: 'АВТОМАТ-БОТ',
-        copyright: '© 2026 IAppsRepo. Все права защищены.', lang_name: 'Русский'
+        copyright: '© 2026 IAppsRepo. Все права защищены.', update_ready: 'Доступна новая версия', update_action: 'Обновить', lang_name: 'Русский'
     },
     ua: {
         hero_subtitle: 'Репозиторій', hero_promo: 'Сертифікати та прокачені додатки для твого iPhone та iPad',
@@ -78,7 +78,7 @@ const I18N = {
         why2_title: 'Чисті IPA збірки', why2_desc: 'з 2016 року', why3_title: 'Великий репо', why3_desc: '1500+ додатків',
         why4_title: 'Миттєві сертифікати', why4_desc: 'видача за хвилини', why5_title: 'Наші відгуки', why5_desc: 'реальні клієнти',
         foot_channel: 'НАШ КАНАЛ', foot_vpn: 'НАШ VPN', foot_bot: 'АВТОМАТ-БОТ',
-        copyright: '© 2026 IAppsRepo. Всі права захищені.', lang_name: 'Українська'
+        copyright: '© 2026 IAppsRepo. Всі права захищені.', update_ready: 'Доступна нова версія', update_action: 'Оновити', lang_name: 'Українська'
     },
     en: {
         hero_subtitle: 'Repository', hero_promo: 'Certificates and upgraded apps for your iPhone and iPad',
@@ -116,7 +116,7 @@ const I18N = {
         why2_title: 'Clean IPA builds', why2_desc: 'since 2016', why3_title: 'Huge repo', why3_desc: '1500+ apps',
         why4_title: 'Instant certificates', why4_desc: 'issued in minutes', why5_title: 'Our reviews', why5_desc: 'real customers',
         foot_channel: 'OUR CHANNEL', foot_vpn: 'OUR VPN', foot_bot: 'AUTO-BOT',
-        copyright: '© 2026 IAppsRepo. All rights reserved.', lang_name: 'English'
+        copyright: '© 2026 IAppsRepo. All rights reserved.', update_ready: 'A new version is ready', update_action: 'Update', lang_name: 'English'
     },
     es: {
         hero_subtitle: 'Repositorio', hero_promo: 'Certificados y aplicaciones mejoradas para tu iPhone y iPad',
@@ -154,7 +154,7 @@ const I18N = {
         why2_title: 'IPAs limpios', why2_desc: 'desde 2016', why3_title: 'Gran repo', why3_desc: '1500+ apps',
         why4_title: 'Certificados instantáneos', why4_desc: 'entrega en minutos', why5_title: 'Nuestras reseñas', why5_desc: 'clientes reales',
         foot_channel: 'NUESTRO CANAL', foot_vpn: 'NUESTRO VPN', foot_bot: 'BOT-AUTO',
-        copyright: '© 2026 IAppsRepo. Todos los derechos reservados.', lang_name: 'Español'
+        copyright: '© 2026 IAppsRepo. Todos los derechos reservados.', update_ready: 'Hay una nueva versión disponible', update_action: 'Actualizar', lang_name: 'Español'
     },
     zh: {
         hero_subtitle: '仓库', hero_promo: '为你的 iPhone 和 iPad 提供证书和增强应用',
@@ -192,7 +192,7 @@ const I18N = {
         why2_title: '纯净 IPA 包', why2_desc: '自 2016 年', why3_title: '超大仓库', why3_desc: '1500+ 应用',
         why4_title: '即时证书', why4_desc: '几分钟内发放', why5_title: '我们的评价', why5_desc: '真实客户',
         foot_channel: '我们的频道', foot_vpn: '我们的 VPN', foot_bot: '自动机器人',
-        copyright: '© 2026 IAppsRepo. 版权所有。', lang_name: '中文'
+        copyright: '© 2026 IAppsRepo. 版权所有。', update_ready: '新版本已准备就绪', update_action: '更新', lang_name: '中文'
     }
 };
 

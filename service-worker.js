@@ -12,7 +12,7 @@
 // получали свежие данные, а не вечный офлайн-кэш).
 // ==========================================================================
 
-const CACHE_VERSION = 'iapps-v112';
+const CACHE_VERSION = 'iapps-v113';
 const CORE_ASSETS = [
     './',
     './index.html',
@@ -36,7 +36,10 @@ self.addEventListener('install', (event) => {
             );
         })
     );
-    self.skipWaiting(); // активируем SW сразу
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 // Активация: удаляем старые версии кэша
